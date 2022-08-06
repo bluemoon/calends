@@ -4,6 +4,8 @@ version = "0.0.1"
 authors = ["Bradford Toney <bradford.toney@gmail.com>"]
 edition = "2021"
 publish = true 
+license = "MIT"
+description = "Calendar library for Rust"
 
 [dependencies]
 base64 = "0.13.0"
