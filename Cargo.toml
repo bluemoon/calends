@@ -1,0 +1,17 @@
+[package]
+name = "dateutil"
+version = "0.1.0"
+authors = ["Bradford Toney <bradford.toney@gmail.com>"]
+edition = "2021"
+publish = false
+
+[dependencies]
+base64 = "0.13.0"
+chrono = { version = "0.4.19", features = ["serde"] }
+fnv = "1.0.7"
+rust-lapper = { version = "1", features = ["with_serde"] }
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+quickcheck = "1.0.3"
+quickcheck_macros = "1.0.0"
