@@ -3,7 +3,7 @@ name = "calends"
 version = "0.0.1"
 authors = ["Bradford Toney <bradford.toney@gmail.com>"]
 edition = "2021"
-publish = false
+publish = true 
 
 [dependencies]
 base64 = "0.13.0"
@@ -16,4 +16,6 @@ serde = { version = "1.0", features = ["derive"] }
 quickcheck = "1.0.3"
 quickcheck_macros = "1.0.0"
 
+[lib]
+name = "calends"
 
