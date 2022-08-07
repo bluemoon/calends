@@ -5,6 +5,7 @@ pub mod event;
 pub mod interval;
 pub mod recur;
 pub mod relative;
+pub mod until;
 pub mod util;
 
 pub use crate::event::*;
