@@ -1,10 +1,11 @@
+///! Interval
+///!
+///! Used to coalesce both recurring and non-recurring intervals into one interface.
 use super::bound;
 use chrono::NaiveDate;
 use std::ops::Bound;
-/// Base interval
-///
-/// Used to coalesce both recurring and non-recurring intervals into one interface.
-pub trait BaseInterval {
+
+pub trait Interval {
     fn start(&self) -> Bound<NaiveDate>;
     fn end(&self) -> Bound<NaiveDate>;
 
@@ -41,12 +42,12 @@ pub trait BaseInterval {
 mod tests {
     use super::*;
 
-    struct Interval {
+    struct Int {
         pub start: Bound<NaiveDate>,
         pub end: Bound<NaiveDate>,
     }
 
-    impl BaseInterval for Interval {
+    impl Interval for Int {
         fn start(&self) -> Bound<NaiveDate> {
             self.start
         }
@@ -58,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_within() {
-        let i1 = Interval {
+        let i1 = Int {
             start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
             end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
         };
@@ -69,7 +70,7 @@ mod tests {
 
     #[test]
     fn test_start_date() {
-        let i1 = Interval {
+        let i1 = Int {
             start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
             end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
         };
@@ -79,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_end_date() {
-        let i1 = Interval {
+        let i1 = Int {
             start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
             end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
         };

@@ -3,7 +3,7 @@ use std::{fmt::Display, iter, ops::Bound};
 use chrono::NaiveDate;
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
-use super::{base::BaseInterval, bound};
+use super::{base::Interval, bound};
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct NaiveInterval {
@@ -52,7 +52,7 @@ impl Display for NaiveInterval {
     }
 }
 
-impl BaseInterval for NaiveInterval {
+impl Interval for NaiveInterval {
     fn start(&self) -> Bound<NaiveDate> {
         self.start
     }

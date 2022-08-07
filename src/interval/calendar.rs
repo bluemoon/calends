@@ -1,4 +1,4 @@
-use super::{base::BaseInterval, bound};
+use super::{base::Interval, bound};
 use crate::{shift, util};
 use chrono::NaiveDate;
 use fnv::FnvHasher;
@@ -260,7 +260,7 @@ impl Iterator for CalendarUntil {
     }
 }
 
-impl BaseInterval for CalendarInterval {
+impl Interval for CalendarInterval {
     fn start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.start)
     }
