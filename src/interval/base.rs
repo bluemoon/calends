@@ -5,7 +5,7 @@ use super::bound;
 use chrono::NaiveDate;
 use std::ops::Bound;
 
-pub trait Interval {
+pub trait IntervalLike {
     fn start(&self) -> Bound<NaiveDate>;
     fn end(&self) -> Bound<NaiveDate>;
 
@@ -47,7 +47,7 @@ mod tests {
         pub end: Bound<NaiveDate>,
     }
 
-    impl Interval for Int {
+    impl IntervalLike for Int {
         fn start(&self) -> Bound<NaiveDate> {
             self.start
         }

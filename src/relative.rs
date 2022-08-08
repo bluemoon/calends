@@ -1,11 +1,11 @@
 //! Implement a Duration that extends chrono and adds Quarter and Month
-use std::ops::{Add, Bound, Div, Mul, Neg, Sub};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use chrono::{Duration, NaiveDate};
 
-use crate::{interval::naive::NaiveInterval, shift};
+use crate::{interval::interval::Interval, shift};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct RelativeDuration {
     months: i32,
     duration: Duration,
@@ -89,11 +89,8 @@ impl RelativeDuration {
         self.months == 0 && self.duration.is_zero()
     }
 
-    pub fn into_interval(&self, start_date: NaiveDate) -> NaiveInterval {
-        NaiveInterval::new(
-            Bound::Included(start_date),
-            Bound::Included(start_date + self.clone()),
-        )
+    pub fn into_interval(&self, start_date: NaiveDate) -> Interval {
+        Interval::from_start(start_date, self.clone())
     }
 }
 
