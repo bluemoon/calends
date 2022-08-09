@@ -1,7 +1,10 @@
-use crate::{relative::RelativeDuration, until::Until};
 use chrono::NaiveDate;
 
+use crate::{duration::RelativeDuration, until::Until};
+
 /// Structure for how an interval of time gets repeated
+///
+/// TODO: Review ISO 8601-2 12.10
 ///
 /// ## Rules for recurrence
 ///

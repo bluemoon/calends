@@ -1,6 +1,6 @@
 use chrono::NaiveDate;
 
-use crate::recur::{Recurrence, Rule};
+use crate::recurrence::{Recurrence, Rule};
 
 /// An event happens on a date and can be recurring but depends on the basis
 #[derive(Debug, Clone, Copy)]
