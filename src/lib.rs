@@ -1,13 +1,11 @@
-pub mod shift;
 // Private until calendars are complete
 pub(crate) mod calendar;
+pub mod duration;
 pub mod event;
 pub mod interval;
-pub mod recur;
-pub mod relative;
-pub mod until;
+pub mod recurrence;
 pub mod util;
 
 pub use crate::event::*;
-pub use crate::shift::*;
+pub use crate::recurrence::*;
 pub use crate::util::*;

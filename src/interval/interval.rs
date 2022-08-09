@@ -1,5 +1,6 @@
+use crate::duration::RelativeDuration;
+
 use super::base::IntervalLike;
-use crate::relative::RelativeDuration;
 use chrono::NaiveDate;
 use fnv::FnvHasher;
 use std::{
@@ -56,7 +57,7 @@ impl Interval {
     pub fn with_dates(start: NaiveDate, _end: NaiveDate) -> Self {
         // TODO: determine the duration based on the delta
         Self {
-            start: start,
+            start,
             duration: RelativeDuration::months(1),
         }
     }

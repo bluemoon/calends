@@ -3,8 +3,17 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use chrono::{Duration, NaiveDate};
 
-use crate::{interval::interval::Interval, shift};
+use crate::interval::interval::Interval;
+use crate::util::shift;
 
+/// A duration of time which can be positive or negative
+///
+/// A duration can be:
+/// - Year
+/// - Month
+/// - Week
+/// - Day
+///
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct RelativeDuration {
     months: i32,
