@@ -70,7 +70,11 @@ pub struct RelativeDuration(RelativeImpl);
 
 impl Display for RelativeDuration {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let build = vec![pluralize("month", self.num_months())];
+        let build = vec![
+            pluralize("month", self.num_months()),
+            pluralize("week", self.num_weeks()),
+            pluralize("day", self.num_days()),
+        ];
         let str = build
             .into_iter()
             .flatten()
@@ -100,7 +104,6 @@ impl RelativeDuration {
     }
 
     /// Create a new RelativeDuration with months
-    #[inline]
     pub fn months(months: i32) -> RelativeDuration {
         RelativeDuration::default().with_months(months)
     }
@@ -131,7 +134,6 @@ impl RelativeDuration {
     }
 
     /// Number of weeks in the duration
-    #[inline]
     pub fn num_weeks(&self) -> i32 {
         let weeks = self.0.weeks() as i32;
         if self.0.weeks_negative() {
@@ -217,11 +219,11 @@ impl Neg for RelativeDuration {
 
     #[inline]
     fn neg(self) -> RelativeDuration {
-        // RelativeDuration {
-        //     months: -self.months,
-        //     duration: -self.duration,
-        // }
-        self.clone()
+        let RelativeDuration(mut ri) = self;
+        ri = ri.with_months_negative(!ri.months_negative());
+        ri = ri.with_weeks_negative(!ri.weeks_negative());
+        ri = ri.with_days_negative(!ri.days_negative());
+        RelativeDuration(ri)
     }
 }
 
@@ -309,9 +311,7 @@ impl Add<RelativeDuration> for RelativeDuration {
 //         }
 //     }
 // }
-//
-// The following is just copy-pasta, mostly because we
-// can't impl<T> Add<RelativeDuration> for T with T: Datelike
+
 impl Add<RelativeDuration> for NaiveDate {
     type Output = NaiveDate;
 
