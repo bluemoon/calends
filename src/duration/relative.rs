@@ -5,6 +5,8 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 use chrono::NaiveDate;
 use modular_bitfield::bitfield;
 use modular_bitfield::prelude::B20;
+use serde::ser::SerializeStruct;
+use serde::{Serialize, Serializer};
 
 use crate::shift;
 
@@ -83,6 +85,19 @@ impl Display for RelativeDuration {
             .fold(String::new(), |a, b| a + &b);
 
         Ok(f.write_str(&str)?)
+    }
+}
+
+impl Serialize for RelativeDuration {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("RelativeDuration", 3)?;
+        state.serialize_field("months", &self.num_months())?;
+        state.serialize_field("weeks", &self.num_weeks())?;
+        state.serialize_field("days", &self.num_days())?;
+        state.end()
     }
 }
 
