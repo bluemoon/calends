@@ -314,6 +314,17 @@ mod tests {
                 .with_days(32)
                 .to_string(),
             String::from("4 months 4 weeks 32 days")
+        );
+
+        // XXX: does this even make sense?
+        assert_eq!(RelativeDuration::zero().to_string(), String::from(""));
+
+        assert_eq!(
+            RelativeDuration::weeks(1)
+                .with_months(1)
+                .with_days(1)
+                .to_string(),
+            String::from("0 month 1 week 1 day")
         )
     }
 
