@@ -324,7 +324,15 @@ mod tests {
                 .with_months(1)
                 .with_days(1)
                 .to_string(),
-            String::from("0 month 1 week 1 day")
+            String::from("1 month 1 week 1 day")
+        );
+
+        assert_eq!(
+            RelativeDuration::weeks(-1)
+                .with_months(1)
+                .with_days(1)
+                .to_string(),
+            String::from("1 month -1 week 1 day")
         )
     }
 
