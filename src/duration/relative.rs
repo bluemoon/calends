@@ -79,12 +79,20 @@ impl Display for RelativeDuration {
             pluralize("week", self.num_weeks()),
             pluralize("day", self.num_days()),
         ];
-        let str = build
-            .into_iter()
-            .flatten()
-            .fold(String::new(), |a, b| a + &b);
 
-        Ok(f.write_str(&str)?)
+        let mut result = String::new();
+        let mut iter = build.iter().flatten();
+
+        if let Some(arg) = iter.next() {
+            result.push_str(&arg);
+
+            for arg in iter {
+                result.push(' ');
+                result.push_str(&arg);
+            }
+        }
+
+        Ok(f.write_str(&result)?)
     }
 }
 
@@ -312,6 +320,46 @@ mod tests {
     //     let rd = RelativeDuration::from_mwd(m, w, d);
     //     assert!(rd.num_days() == d && rd.num_weeks() == w && rd.num_months() == m)
     // }
+    //
+    #[test]
+    fn test_display() {
+        assert_eq!(
+            RelativeDuration::weeks(4)
+                .with_months(4)
+                .with_days(32)
+                .to_string(),
+            String::from("4 months 4 weeks 32 days")
+        );
+
+        // XXX: does this even make sense?
+        assert_eq!(RelativeDuration::zero().to_string(), String::from(""));
+
+        assert_eq!(
+            RelativeDuration::weeks(1)
+                .with_months(1)
+                .with_days(1)
+                .to_string(),
+            String::from("1 month 1 week 1 day")
+        );
+
+        assert_eq!(
+            RelativeDuration::weeks(-1)
+                .with_months(1)
+                .with_days(1)
+                .to_string(),
+            String::from("1 month -1 week 1 day")
+        )
+    }
+
+    #[test]
+    fn test_zero() {
+        assert_eq!(RelativeDuration::zero().is_zero(), true);
+    }
+
+    #[test]
+    fn test_negate() {
+        assert_eq!((-RelativeDuration::months(1)).num_months(), -1);
+    }
 
     #[test]
     fn test_month() {
