@@ -77,12 +77,20 @@ impl Display for RelativeDuration {
             pluralize("week", self.num_weeks()),
             pluralize("day", self.num_days()),
         ];
-        let str = build
-            .into_iter()
-            .flatten()
-            .fold(String::new(), |a, b| a + &b);
 
-        Ok(f.write_str(&str)?)
+        let mut result = String::new();
+        let mut iter = build.iter().flatten();
+
+        if let Some(arg) = iter.next() {
+            result.push_str(&arg);
+
+            for arg in iter {
+                result.push(' ');
+                result.push_str(&arg);
+            }
+        }
+
+        Ok(f.write_str(&result)?)
     }
 }
 
@@ -297,6 +305,17 @@ mod tests {
     //     let rd = RelativeDuration::from_mwd(m, w, d);
     //     assert!(rd.num_days() == d && rd.num_weeks() == w && rd.num_months() == m)
     // }
+    //
+    #[test]
+    fn test_display() {
+        assert_eq!(
+            RelativeDuration::weeks(4)
+                .with_months(4)
+                .with_days(32)
+                .to_string(),
+            String::from("4 months 4 weeks 32 days")
+        )
+    }
 
     #[test]
     fn test_zero() {
