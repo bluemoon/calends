@@ -1,6 +1,6 @@
 //! Implement a Duration that extends chrono and adds Quarter and Month
 use std::fmt::Display;
-use std::ops::{Add, Neg};
+use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use chrono::NaiveDate;
 use modular_bitfield::bitfield;
@@ -10,24 +10,24 @@ use crate::shift;
 
 use super::format::pluralize;
 
-const fn min_bit_size(bits: u32) -> i64 {
-    let base: u32 = 2;
-    -(base.pow(bits - 1 as u32) as i64)
-}
-
-const fn max_bit_size(bits: u32) -> i64 {
-    let base: u32 = 2;
-    base.pow(bits - 1 as u32) as i64
-}
-
-const MIN_MONTHS: i64 = min_bit_size(20);
-const MAX_MONTHS: i64 = max_bit_size(20);
-
-const MIN_WEEKS: i64 = min_bit_size(20);
-const MAX_WEEKS: i64 = max_bit_size(20);
-
-const MIN_DAYS: i64 = min_bit_size(10);
-const MAX_DAYS: i64 = max_bit_size(10);
+// const fn min_bit_size(bits: u32) -> i64 {
+//     let base: u32 = 2;
+//     -(base.pow(bits - 1 as u32) as i64)
+// }
+//
+// const fn max_bit_size(bits: u32) -> i64 {
+//     let base: u32 = 2;
+//     base.pow(bits - 1 as u32) as i64
+// }
+//
+// const MIN_MONTHS: i64 = min_bit_size(20);
+// const MAX_MONTHS: i64 = max_bit_size(20);
+//
+// const MIN_WEEKS: i64 = min_bit_size(20);
+// const MAX_WEEKS: i64 = max_bit_size(20);
+//
+// const MIN_DAYS: i64 = min_bit_size(10);
+// const MAX_DAYS: i64 = max_bit_size(10);
 
 /// A duration of time which can be positive or negative
 ///
@@ -105,9 +105,20 @@ impl RelativeDuration {
         )
     }
 
-    /// Create a new RelativeDuration with months
+    /// Create a RelativeDuration with the number of months
     pub fn months(months: i32) -> RelativeDuration {
         RelativeDuration::default().with_months(months)
+    }
+
+    /// Create a RelativeDuration with the numer of weeks
+    pub fn weeks(weeks: i32) -> RelativeDuration {
+        RelativeDuration::default().with_weeks(weeks)
+    }
+
+    /// Create a RelativeDuration with the number of days
+    #[inline]
+    pub fn days(days: i32) -> RelativeDuration {
+        RelativeDuration::default().with_days(days)
     }
 
     /// Set the number of months in the duration
@@ -136,6 +147,7 @@ impl RelativeDuration {
     }
 
     /// Number of weeks in the duration
+    #[inline]
     pub fn num_weeks(&self) -> i32 {
         let weeks = self.0.weeks() as i32;
         if self.0.weeks_negative() {
@@ -159,20 +171,6 @@ impl RelativeDuration {
         RelativeDuration(ri)
     }
 
-    #[inline]
-    pub fn weeks(weeks: i32) -> RelativeDuration {
-        let RelativeDuration(mut ri) = RelativeDuration::default();
-        if weeks.is_negative() {
-            ri = ri.with_weeks(-weeks as u32);
-            ri = ri.with_weeks_negative(true);
-        } else {
-            ri = ri.with_weeks(weeks as u32);
-            ri = ri.with_weeks_negative(false);
-        }
-
-        RelativeDuration(ri)
-    }
-
     /// Number of weeks in the duration
     #[inline]
     pub fn num_days(&self) -> i32 {
@@ -182,11 +180,6 @@ impl RelativeDuration {
         } else {
             days
         }
-    }
-
-    #[inline]
-    pub fn days(days: i32) -> RelativeDuration {
-        RelativeDuration::default().with_days(days)
     }
 
     /// Set the number of days in the duration
@@ -241,78 +234,41 @@ impl Add<RelativeDuration> for RelativeDuration {
         )
     }
 }
-//
-// impl Add<Duration> for RelativeDuration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn add(self, rhs: Duration) -> RelativeDuration {
-//         self + RelativeDuration {
-//             months: 0,
-//             duration: rhs,
-//         }
-//     }
-// }
-//
-// impl Add<RelativeDuration> for Duration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn add(self, rhs: RelativeDuration) -> RelativeDuration {
-//         rhs + self
-//     }
-// }
-//
-// impl Sub for RelativeDuration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn sub(self, rhs: RelativeDuration) -> RelativeDuration {
-//         self + (-rhs)
-//     }
-// }
-//
-// impl Sub<RelativeDuration> for Duration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn sub(self, rhs: RelativeDuration) -> RelativeDuration {
-//         -rhs + self
-//     }
-// }
-//
-// impl Sub<Duration> for RelativeDuration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn sub(self, rhs: Duration) -> RelativeDuration {
-//         self + (-rhs)
-//     }
-// }
-//
-// impl Mul<i32> for RelativeDuration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn mul(self, rhs: i32) -> RelativeDuration {
-//         RelativeDuration {
-//             months: self.months * rhs,
-//             duration: self.duration * rhs,
-//         }
-//     }
-// }
-//
-// impl Div<i32> for RelativeDuration {
-//     type Output = RelativeDuration;
-//
-//     #[inline]
-//     fn div(self, rhs: i32) -> RelativeDuration {
-//         RelativeDuration {
-//             months: self.months / rhs,
-//             duration: self.duration / rhs,
-//         }
-//     }
-// }
+
+impl Sub for RelativeDuration {
+    type Output = RelativeDuration;
+
+    #[inline]
+    fn sub(self, rhs: RelativeDuration) -> RelativeDuration {
+        self + (-rhs)
+    }
+}
+
+impl Mul<i32> for RelativeDuration {
+    type Output = RelativeDuration;
+
+    #[inline]
+    fn mul(self, rhs: i32) -> RelativeDuration {
+        RelativeDuration::from_mwd(
+            self.num_months() * rhs,
+            self.num_weeks() * rhs,
+            self.num_days() * rhs,
+        )
+    }
+}
+
+impl Div<i32> for RelativeDuration {
+    type Output = RelativeDuration;
+
+    #[inline]
+    fn div(self, rhs: i32) -> RelativeDuration {
+        RelativeDuration::from_mwd(
+            self.num_months() / rhs,
+            self.num_weeks() / rhs,
+            self.num_days() / rhs,
+        )
+    }
+}
 
 /// Add a duration to a [NaiveDate]
 ///

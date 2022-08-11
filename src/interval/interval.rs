@@ -48,7 +48,7 @@ impl Interval {
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         // TODO: subtract for duration
         Self {
-            start: end + -duration.clone(),
+            start: end + -duration,
             duration,
         }
     }
@@ -81,7 +81,7 @@ impl IntervalLike for Interval {
     }
 
     fn end(&self) -> Bound<NaiveDate> {
-        Bound::Included(self.start + self.duration.clone())
+        Bound::Included(self.start + self.duration)
     }
 }
 
