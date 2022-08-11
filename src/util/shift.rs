@@ -120,8 +120,8 @@ pub fn add_year_duration(date: NaiveDate) -> NaiveDate {
 ///
 /// Simple enough
 #[inline]
-pub fn add_week_duration(date: NaiveDate) -> NaiveDate {
-    date + chrono::Duration::weeks(1)
+pub fn shift_weeks(date: NaiveDate, delta: i32) -> NaiveDate {
+    date + chrono::Duration::weeks(delta as i64)
 }
 
 /// Add a biweek
@@ -134,6 +134,6 @@ pub fn add_biweek_duration(date: NaiveDate) -> NaiveDate {
 
 /// Add a day
 #[inline]
-pub fn add_day(date: NaiveDate) -> NaiveDate {
-    date + chrono::Duration::days(1)
+pub fn shift_days(date: NaiveDate, days: i32) -> NaiveDate {
+    date + chrono::Duration::days(days.into())
 }

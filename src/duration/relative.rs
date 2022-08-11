@@ -6,6 +6,8 @@ use chrono::NaiveDate;
 use modular_bitfield::bitfield;
 use modular_bitfield::prelude::B20;
 
+use crate::shift;
+
 use super::format::pluralize;
 
 const fn min_bit_size(bits: u32) -> i64 {
@@ -39,7 +41,7 @@ const MAX_DAYS: i64 = max_bit_size(10);
 /// Chrono DateImpl only supports 13 bits for years so around 8000 years
 ///
 ///
-/// ```no_run
+/// ```text
 ///
 /// ┌─────┐                                                      
 /// │ MSB │                                        ┌────────────┐   
@@ -312,23 +314,36 @@ impl Add<RelativeDuration> for RelativeDuration {
 //     }
 // }
 
+/// Add a duration to a [NaiveDate]
+///
+/// Precendence for adding is from largest unit to smallest unit
 impl Add<RelativeDuration> for NaiveDate {
     type Output = NaiveDate;
 
     #[inline]
     fn add(self, rhs: RelativeDuration) -> NaiveDate {
-        // shift::shift_months(self, rhs.months) + rhs.duration
-        self.clone()
+        let date = shift::shift_months(self, rhs.num_months());
+        let date = shift::shift_weeks(date, rhs.num_weeks());
+        let date = shift::shift_days(date, rhs.num_days());
+        date
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    // use quickcheck::{Arbitrary, Gen};
+    // use quickcheck_macros::quickcheck;
+    //
+    //
+    // #[quickcheck]
+    // fn test_arb_durations(m: i32, w: i32, d: i32) {
+    //     let rd = RelativeDuration::from_mwd(m, w, d);
+    //     assert!(rd.num_days() == d && rd.num_weeks() == w && rd.num_months() == m)
+    // }
 
     #[test]
     fn test_month() {
-        println!("{:?}", RelativeDuration::months(1));
         assert_eq!(RelativeDuration::months(1).num_months(), 1);
         assert_eq!(RelativeDuration::months(-1).num_months(), -1)
     }
