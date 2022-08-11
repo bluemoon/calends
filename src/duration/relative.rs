@@ -10,24 +10,24 @@ use crate::shift;
 
 use super::format::pluralize;
 
-const fn min_bit_size(bits: u32) -> i64 {
-    let base: u32 = 2;
-    -(base.pow(bits - 1 as u32) as i64)
-}
-
-const fn max_bit_size(bits: u32) -> i64 {
-    let base: u32 = 2;
-    base.pow(bits - 1 as u32) as i64
-}
-
-const MIN_MONTHS: i64 = min_bit_size(20);
-const MAX_MONTHS: i64 = max_bit_size(20);
-
-const MIN_WEEKS: i64 = min_bit_size(20);
-const MAX_WEEKS: i64 = max_bit_size(20);
-
-const MIN_DAYS: i64 = min_bit_size(10);
-const MAX_DAYS: i64 = max_bit_size(10);
+// const fn min_bit_size(bits: u32) -> i64 {
+//     let base: u32 = 2;
+//     -(base.pow(bits - 1 as u32) as i64)
+// }
+//
+// const fn max_bit_size(bits: u32) -> i64 {
+//     let base: u32 = 2;
+//     base.pow(bits - 1 as u32) as i64
+// }
+//
+// const MIN_MONTHS: i64 = min_bit_size(20);
+// const MAX_MONTHS: i64 = max_bit_size(20);
+//
+// const MIN_WEEKS: i64 = min_bit_size(20);
+// const MAX_WEEKS: i64 = max_bit_size(20);
+//
+// const MIN_DAYS: i64 = min_bit_size(10);
+// const MAX_DAYS: i64 = max_bit_size(10);
 
 /// A duration of time which can be positive or negative
 ///
