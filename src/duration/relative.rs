@@ -299,6 +299,16 @@ mod tests {
     // }
 
     #[test]
+    fn test_zero() {
+        assert_eq!(RelativeDuration::zero().is_zero(), true);
+    }
+
+    #[test]
+    fn test_negate() {
+        assert_eq!((-RelativeDuration::months(1)).num_months(), -1);
+    }
+
+    #[test]
     fn test_month() {
         assert_eq!(RelativeDuration::months(1).num_months(), 1);
         assert_eq!(RelativeDuration::months(-1).num_months(), -1)
