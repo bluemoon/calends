@@ -1,16 +1,11 @@
 //! Implement a Duration that extends chrono and adds Quarter and Month
-use std::fmt::Display;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use chrono::NaiveDate;
 use modular_bitfield::bitfield;
 use modular_bitfield::prelude::B20;
-use serde::ser::SerializeStruct;
-use serde::{Serialize, Serializer};
 
 use crate::shift;
-
-use super::format::pluralize;
 
 // const fn min_bit_size(bits: u32) -> i64 {
 //     let base: u32 = 2;
@@ -71,43 +66,6 @@ pub struct RelativeImpl {
 /// TODO: flatten when serializing
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct RelativeDuration(RelativeImpl);
-
-impl Display for RelativeDuration {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let build = vec![
-            pluralize("month", self.num_months()),
-            pluralize("week", self.num_weeks()),
-            pluralize("day", self.num_days()),
-        ];
-
-        let mut result = String::new();
-        let mut iter = build.iter().flatten();
-
-        if let Some(arg) = iter.next() {
-            result.push_str(&arg);
-
-            for arg in iter {
-                result.push(' ');
-                result.push_str(&arg);
-            }
-        }
-
-        Ok(f.write_str(&result)?)
-    }
-}
-
-impl Serialize for RelativeDuration {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("RelativeDuration", 3)?;
-        state.serialize_field("months", &self.num_months())?;
-        state.serialize_field("weeks", &self.num_weeks())?;
-        state.serialize_field("days", &self.num_days())?;
-        state.end()
-    }
-}
 
 impl RelativeDuration {
     pub fn from_mwd(months: i32, weeks: i32, days: i32) -> RelativeDuration {
@@ -229,6 +187,24 @@ impl RelativeDuration {
     #[inline]
     pub fn is_zero(&self) -> bool {
         self.num_months() == 0 && self.num_weeks() == 0 && self.num_days() == 0
+    }
+
+    /// Return an ISO8601-2:2019 formatted duration
+    pub fn iso_8601(&self) -> String {
+        let build = vec![
+            (self.num_months(), "M"),
+            (self.num_weeks(), "W"),
+            (self.num_days(), "D"),
+        ];
+
+        let mut result = String::from("P");
+
+        for (count, unit) in build.iter() {
+            result.push_str(&count.to_string());
+            result.push_str(unit);
+        }
+
+        result
     }
 }
 
