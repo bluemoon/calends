@@ -63,6 +63,6 @@ pub mod rd_iso8601 {
     where
         S: ser::Serializer,
     {
-        serializer.serialize_str(&rd.iso_8601())
+        serializer.serialize_str(&rd.iso8601())
     }
 }

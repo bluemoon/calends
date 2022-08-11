@@ -189,8 +189,20 @@ impl RelativeDuration {
         self.num_months() == 0 && self.num_weeks() == 0 && self.num_days() == 0
     }
 
-    /// Return an ISO8601-2:2019 formatted duration
-    pub fn iso_8601(&self) -> String {
+    /// Return an ISO8601-2:2019 formatted duration, notably we do not include offsets for time
+    /// (hours, minutes or seconds etc.)
+    ///
+    /// # Examples of output
+    ///
+    /// - 'P5D' is a duration of 5 days
+    /// - 'P120M400D' is a duration of 120 months and 400 days
+    /// - 'P4W3D' is a duration of 4 weeks and 3 days
+    /// - 'P-4M3W' is a duration of negative 4 months and positive 3 weeks, the minus sign can be
+    /// applied to each of the components within the serialization format
+    ///
+    /// See [serde::rd_iso8601] for usage in serializing
+    ///
+    pub fn iso8601(&self) -> String {
         let build = vec![
             (self.num_months(), "M"),
             (self.num_weeks(), "W"),
