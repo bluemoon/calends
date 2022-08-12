@@ -26,6 +26,18 @@ use crate::shift;
 // const MIN_DAYS: i64 = min_bit_size(10);
 // const MAX_DAYS: i64 = max_bit_size(10);
 
+#[bitfield]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct RelativeImpl {
+    pub months: B20,
+    pub weeks: B20,
+    pub days: B20,
+    pub months_negative: bool,
+    pub weeks_negative: bool,
+    pub days_negative: bool,
+    pub pad: bool,
+}
+
 /// A duration of time which can be positive or negative
 ///
 /// A duration can be:
@@ -51,19 +63,6 @@ use crate::shift;
 ///       ◀ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
 ///
 /// ```
-#[bitfield]
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct RelativeImpl {
-    pub months: B20,
-    pub weeks: B20,
-    pub days: B20,
-    pub months_negative: bool,
-    pub weeks_negative: bool,
-    pub days_negative: bool,
-    pub pad: bool,
-}
-
-/// TODO: flatten when serializing
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct RelativeDuration(RelativeImpl);
 
@@ -71,10 +70,6 @@ impl RelativeDuration {
     pub fn from_mwd(months: i32, weeks: i32, days: i32) -> RelativeDuration {
         RelativeDuration::from_raw(months, weeks, days)
             .expect("relative duration is invalid and exceeds bounds")
-    }
-
-    pub fn from_ymwd_opt(months: i32, weeks: i32, days: i32) -> Option<RelativeDuration> {
-        RelativeDuration::from_raw(months, weeks, days)
     }
 
     fn from_raw(months: i32, weeks: i32, days: i32) -> Option<RelativeDuration> {
@@ -212,8 +207,10 @@ impl RelativeDuration {
         let mut result = String::from("P");
 
         for (count, unit) in build.iter() {
-            result.push_str(&count.to_string());
-            result.push_str(unit);
+            if *count != 0 {
+                result.push_str(&count.to_string());
+                result.push_str(unit);
+            }
         }
 
         result
@@ -339,6 +336,23 @@ mod tests {
     }
 
     #[test]
+    fn test_iso8601() {
+        // - 'P5D' is a duration of 5 days
+        assert_eq!(RelativeDuration::days(5).iso8601(), "P5D");
+        // - 'P120M400D' is a duration of 120 months and 400 days
+        assert_eq!(
+            RelativeDuration::months(120).with_days(400).iso8601(),
+            "P120M400D"
+        );
+        // - 'P-4M3W' is a duration of negative 4 months and positive 3 weeks, the minus sign can be
+        // applied to each of the components within the serialization format
+        assert_eq!(
+            RelativeDuration::months(-4).with_weeks(3).iso8601(),
+            "P-4M3W"
+        );
+    }
+
+    #[test]
     fn test_zero() {
         assert_eq!(RelativeDuration::zero().is_zero(), true);
     }
@@ -346,6 +360,31 @@ mod tests {
     #[test]
     fn test_negate() {
         assert_eq!((-RelativeDuration::months(1)).num_months(), -1);
+    }
+
+    #[test]
+    fn test_subtract() {
+        assert_eq!(
+            RelativeDuration::months(1).with_weeks(1).with_days(1)
+                - RelativeDuration::months(1).with_weeks(1).with_days(1),
+            RelativeDuration::zero()
+        );
+    }
+
+    #[test]
+    fn test_mul() {
+        assert_eq!(
+            RelativeDuration::months(1).with_weeks(1).with_days(1) * 2,
+            RelativeDuration::months(2).with_weeks(2).with_days(2)
+        );
+    }
+
+    #[test]
+    fn test_div() {
+        assert_eq!(
+            RelativeDuration::months(2).with_weeks(2).with_days(2) / 2,
+            RelativeDuration::months(1).with_weeks(1).with_days(1)
+        );
     }
 
     #[test]
