@@ -98,14 +98,14 @@ impl Recurrence {
     ///
     /// TODO: example
     pub fn until(&self, date: NaiveDate) -> Until<Recurrence> {
-        Until::exclusive(date, self.clone().into_iter())
+        Until::exclusive(date, self.clone())
     }
 
     /// Iterate up to and including the date
     ///
     /// TODO: example
     pub fn until_and_including(&self, date: NaiveDate) -> Until<Recurrence> {
-        Until::inclusive(date, self.clone().into_iter())
+        Until::inclusive(date, self.clone())
     }
 }
 
@@ -117,12 +117,12 @@ impl Iterator for Recurrence {
 
         match &self.rule {
             Rule::Offset(duration, _) => {
-                self.date = date + duration.clone();
+                self.date = date + *duration;
                 Some(date)
             }
             Rule::Occurence(duration, count, _) => {
                 if count < &self.occurence_count {
-                    self.date = date + duration.clone();
+                    self.date = date + *duration;
                     Some(date)
                 } else {
                     None
@@ -163,7 +163,7 @@ mod tests {
     fn test_recur_monthly() {
         let date = NaiveDate::from_ymd(2022, 1, 1);
 
-        let mut recur = Recurrence::with_start(Rule::monthly(), date).into_iter();
+        let mut recur = Recurrence::with_start(Rule::monthly(), date);
         assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
         assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
     }
@@ -172,7 +172,7 @@ mod tests {
     fn test_recur_quarterly() {
         let date = NaiveDate::from_ymd(2022, 1, 1);
 
-        let mut recur = Recurrence::with_start(Rule::quarterly(), date).into_iter();
+        let mut recur = Recurrence::with_start(Rule::quarterly(), date);
         assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
         assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 4, 1)));
     }

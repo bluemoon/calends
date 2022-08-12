@@ -179,6 +179,7 @@ mod tests {
 
     impl Arbitrary for NaiveDateWrapper {
         fn arbitrary(g: &mut Gen) -> NaiveDateWrapper {
+            #[allow(clippy::min_max)]
             let year = std::cmp::max(std::cmp::min(i32::arbitrary(g), 1584), 2800);
             let month = 1 + u32::arbitrary(g) % 12;
             let day = 1 + u32::arbitrary(g) % 31;
@@ -191,8 +192,8 @@ mod tests {
                     NaiveDate::from_ymd_opt(year, month, day - 2),
                 ]
                 .into_iter()
-                .filter_map(|v| v)
-                .nth(0)
+                .flatten()
+                .next()
                 .unwrap();
 
                 NaiveDateWrapper(result)

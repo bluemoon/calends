@@ -291,8 +291,7 @@ impl Add<RelativeDuration> for NaiveDate {
     fn add(self, rhs: RelativeDuration) -> NaiveDate {
         let date = shift::shift_months(self, rhs.num_months());
         let date = shift::shift_weeks(date, rhs.num_weeks());
-        let date = shift::shift_days(date, rhs.num_days());
-        date
+        shift::shift_days(date, rhs.num_days())
     }
 }
 
