@@ -1,5 +1,3 @@
-// Private until calendars are complete
-pub(crate) mod calendar;
 pub mod duration;
 pub mod event;
 pub mod interval;
