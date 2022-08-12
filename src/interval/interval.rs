@@ -40,6 +40,19 @@ pub struct Interval {
 
 impl Interval {
     /// Create an interval from a start and a duration
+    ///
+    /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    ///
+    /// let start = NaiveDate::from_ymd(2022, 1, 1);
+    /// let duration = RelativeDuration::months(1);
+    ///
+    /// let mut interval = Interval::from_start(start, duration);
+    ///
+    /// assert_eq!(interval.start_date(), Some(start));
+    /// assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// ```
     pub fn from_start(start: NaiveDate, duration: RelativeDuration) -> Self {
         Self { start, duration }
     }
