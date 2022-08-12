@@ -26,14 +26,14 @@ impl Display for RelativeDuration {
         let mut iter = build.iter().flatten();
 
         if let Some(arg) = iter.next() {
-            result.push_str(&arg);
+            result.push_str(arg);
 
             for arg in iter {
                 result.push(' ');
-                result.push_str(&arg);
+                result.push_str(arg);
             }
         }
 
-        Ok(f.write_str(&result)?)
+        f.write_str(&result)
     }
 }
