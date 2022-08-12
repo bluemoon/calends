@@ -56,7 +56,7 @@ pub mod rd_iso8601 {
     ///     duration: RelativeDuration::months(3).with_days(-3)
     /// };
     /// let as_string = serde_json::to_string(&s)?;
-    /// assert_eq!(as_string, r#"{"duration":"P3M0W-3D"}"#);
+    /// assert_eq!(as_string, r#"{"duration":"P3M-3D"}"#);
     /// # Ok::<(), serde_json::Error>(())
     /// ```
     pub fn serialize<S>(rd: &RelativeDuration, serializer: S) -> Result<S::Ok, S::Error>
