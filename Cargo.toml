@@ -15,10 +15,10 @@ modular-bitfield = "0.11.2"
 serde = { version = "1.0", features = ["derive"] }
 
 [dev-dependencies]
-serde_json = { version = "1" }
-serde_derive = { version = "1", default-features = false }
 quickcheck = "1.0.3"
 quickcheck_macros = "1.0.0"
+serde_derive = { version = "1", default-features = false }
+serde_json = { version = "1" }
 
 [lib]
 name = "calends"
