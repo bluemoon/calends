@@ -1,6 +1,8 @@
 use chrono::NaiveDate;
 
-use crate::{duration::RelativeDuration, until::Until};
+use crate::duration::RelativeDuration;
+
+use super::until::Until;
 
 /// Structure for how an interval of time gets repeated
 ///
@@ -85,7 +87,17 @@ pub struct Recurrence {
 impl Recurrence {
     /// Starting point for the recurring series
     ///
-    /// TODO: add the [Rule::Offset] to the start date
+    /// ```
+    /// use calends::{Recurrence, Rule};
+    /// use chrono::NaiveDate;
+    ///
+    /// let date = NaiveDate::from_ymd(2022, 1, 1);
+    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    ///
+    /// let mut recur = Recurrence::with_start(Rule::monthly(), date);
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// ```
     pub fn with_start(rule: Rule, date: NaiveDate) -> Self {
         Self {
             rule,
@@ -96,14 +108,36 @@ impl Recurrence {
 
     /// Iterate up to a date
     ///
-    /// TODO: example
+    /// ```
+    /// use calends::{Recurrence, Rule};
+    /// use chrono::NaiveDate;
+    ///
+    /// let date = NaiveDate::from_ymd(2022, 1, 1);
+    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    ///
+    /// let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(recur.next(), None);
+    /// ```
     pub fn until(&self, date: NaiveDate) -> Until<Recurrence> {
         Until::exclusive(date, self.clone())
     }
 
     /// Iterate up to and including the date
     ///
-    /// TODO: example
+    /// ```
+    /// use calends::{Recurrence, Rule};
+    /// use chrono::NaiveDate;
+    ///
+    /// let date = NaiveDate::from_ymd(2022, 1, 1);
+    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    ///
+    /// let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(recur.next(), None);
+    /// ```
     pub fn until_and_including(&self, date: NaiveDate) -> Until<Recurrence> {
         Until::inclusive(date, self.clone())
     }
