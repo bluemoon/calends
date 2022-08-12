@@ -89,8 +89,36 @@ impl Iterator for Interval {
     type Item = Interval;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let interval = self;
+        let interval = self.clone();
+        self.start = interval.start + self.duration;
 
-        Some(interval.clone())
+        Some(interval)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_interval() {
+        let start = NaiveDate::from_ymd(2022, 1, 1);
+        let duration = RelativeDuration::months(1);
+
+        let mut interval = Interval::from_start(start, duration);
+
+        assert_eq!(interval.start_date(), Some(start));
+        assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+
+        // Intervals are inclusive so return the current time span first
+        let next = interval.next().unwrap();
+
+        assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 1, 1)));
+        assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+
+        let next = interval.next().unwrap();
+
+        assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+        assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 3, 1)));
     }
 }
