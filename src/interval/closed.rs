@@ -2,11 +2,7 @@ use crate::duration::RelativeDuration;
 
 use super::iter::UntilAfter;
 use chrono::NaiveDate;
-use fnv::FnvHasher;
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-};
+use std::fmt;
 
 /// Iteration Error
 #[derive(Debug)]
@@ -60,6 +56,8 @@ pub struct Interval {
 impl Interval {
     /// Create an interval from a start and a duration
     ///
+    /// # Example
+    ///
     /// ```
     /// use chrono::NaiveDate;
     /// use calends::{Interval, IntervalLike, RelativeDuration};
@@ -77,6 +75,18 @@ impl Interval {
     }
 
     /// Create an interval from an end and a duration
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let interval = Interval::from_end(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
+    /// );
+    ///
+    /// assert_eq!(interval.start_date(), NaiveDate::from_ymd(2021, 12, 13));
+    /// assert_eq!(interval.end_date(), NaiveDate::from_ymd(2021, 12, 31));
+    /// ```
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval {
             date: end + -duration,
@@ -91,18 +101,6 @@ impl Interval {
             date,
             duration: RelativeDuration::months(1),
         }
-    }
-
-    /// Produce a hash for the interval
-    ///
-    /// # Why do you use FNV?
-    ///
-    /// Currently there's no guarantee that rust upgrades won't change how hashing functions so we
-    /// must consider this as its externally facing.
-    pub fn hash_str(&self) -> String {
-        let mut hash = FnvHasher::default();
-        self.hash(&mut hash);
-        base64::encode(hash.finish().to_be_bytes())
     }
 
     /// Start date of the interval
@@ -132,7 +130,7 @@ impl Interval {
         format!("{}/{}", start, end)
     }
 
-    pub fn until_after(self, until: NaiveDate) -> UntilAfter<Self> {
+    pub fn until_after(self, until: NaiveDate) -> UntilAfter<Interval> {
         UntilAfter::new(self, until)
     }
 }
