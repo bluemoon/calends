@@ -113,6 +113,7 @@ impl Interval {
         (self.date + self.duration).pred()
     }
 
+    /// Determine whether or not a date is inside of an interval
     pub fn within(&self, date: NaiveDate) -> bool {
         date >= self.start_date() && date <= self.end_date()
     }
