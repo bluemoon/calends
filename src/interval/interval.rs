@@ -51,10 +51,10 @@ impl fmt::Display for ImpossibleIterator {
 pub enum Interval {
     /// Indicating that the preceeding direction is unbounded, this is the time leading up to the
     /// current time.
-    PreceedingOpen(NaiveDate),
+    OpenStart(NaiveDate),
     /// Indicating that the following direction is unbounded, this is the time after the
     /// current time.
-    FollowingOpen(NaiveDate),
+    OpenEnd(NaiveDate),
     /// Indicating up to OR on in the direction of the interval
     ///
     /// e.g. if the direction is "forwards" and the end is inclusive then it will include the
@@ -75,7 +75,7 @@ impl Interval {
     /// let mut interval = Interval::from_start(start, duration);
     ///
     /// assert_eq!(interval.start_date(), Some(start));
-    /// assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 1, 31)));
     /// ```
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(date, duration)
@@ -107,8 +107,8 @@ impl Interval {
     /// Start date of the interval
     pub fn start_date(&self) -> Option<NaiveDate> {
         match self {
-            Interval::PreceedingOpen(_) => None,
-            Interval::FollowingOpen(d) => Some(*d),
+            Interval::OpenStart(_) => None,
+            Interval::OpenEnd(d) => Some(*d),
             Interval::Closed(d, _) => Some(*d),
         }
     }
@@ -116,17 +116,26 @@ impl Interval {
     /// End date of the interval
     pub fn end_date(&self) -> Option<NaiveDate> {
         match self {
-            Interval::PreceedingOpen(d) => Some(*d),
-            Interval::FollowingOpen(_) => None,
-            Interval::Closed(date, duration) => Some(*date + *duration),
+            Interval::OpenStart(d) => Some(*d),
+            Interval::OpenEnd(_) => None,
+            Interval::Closed(date, duration) => Some((*date + *duration).pred()),
         }
     }
 
     /// ISO8601-2:2019 Formatting of intervals
+    ///
+    /// The standard allows for:
+    ///
+    /// - tiseE =[dtE]["/"][dtE]
+    /// - tisdE = [dtE]["/"][duration]
+    /// - tisdE = [duration]["/"][dtE]
+    ///
+    /// Currently we only represent the top one
+    ///
     pub fn iso8601(&self) -> String {
         match self {
-            Interval::PreceedingOpen(date) => todo!("../{}", date.to_string()),
-            Interval::FollowingOpen(date) => format!("{}/..", date.to_string()),
+            Interval::OpenStart(date) => format!("../{}", date.to_string()),
+            Interval::OpenEnd(date) => format!("{}/..", date.to_string()),
             Interval::Closed(date, duration) => {
                 let start = date.to_string();
                 let end = (*date + *duration).to_string();
@@ -139,8 +148,8 @@ impl Interval {
     /// Convert to a struct that implements [Iterator]
     pub fn iterate(&self) -> Result<Iter, ImpossibleIterator> {
         match self {
-            Interval::PreceedingOpen(_) => Err(ImpossibleIterator),
-            Interval::FollowingOpen(_) => Err(ImpossibleIterator),
+            Interval::OpenStart(_) => Err(ImpossibleIterator),
+            Interval::OpenEnd(_) => Err(ImpossibleIterator),
             Interval::Closed(date, duration) => Ok(Iter::new(*date, *duration)),
         }
     }
@@ -161,9 +170,11 @@ mod tests {
 
         let next = iter.next().unwrap();
         assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+        assert_eq!(next.end_date().unwrap(), NaiveDate::from_ymd(2022, 1, 19));
 
         let next = iter.next().unwrap();
         assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 1, 20));
+        assert_eq!(next.end_date().unwrap(), NaiveDate::from_ymd(2022, 2, 7));
 
         let next = iter.next().unwrap();
         assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 2, 8));
