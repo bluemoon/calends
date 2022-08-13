@@ -111,8 +111,8 @@ pub fn shift_quarters(date: NaiveDate, quarters: i32) -> NaiveDate {
 ///
 /// ```
 #[inline]
-pub fn add_year_duration(date: NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(date.year() + 1, date.month(), date.day())
+pub fn shift_years(date: NaiveDate, years: i32) -> NaiveDate {
+    shift_months(date, years * 12)
 }
 
 /// Add a week
@@ -123,16 +123,47 @@ pub fn shift_weeks(date: NaiveDate, delta: i32) -> NaiveDate {
     date + chrono::Duration::weeks(delta as i64)
 }
 
-/// Add a biweek
-///
-/// Adds two weeks
-#[inline]
-pub fn add_biweek_duration(date: NaiveDate) -> NaiveDate {
-    date + chrono::Duration::weeks(2)
-}
-
 /// Add a day
 #[inline]
 pub fn shift_days(date: NaiveDate, days: i32) -> NaiveDate {
     date + chrono::Duration::days(days.into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_shift_months() {
+        assert_eq!(
+            shift_months(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2022, 2, 1)
+        );
+
+        assert_eq!(
+            shift_months(NaiveDate::from_ymd(2022, 1, 1), -1),
+            NaiveDate::from_ymd(2021, 12, 1)
+        )
+    }
+
+    #[test]
+    fn test_shift_quarters() {
+        assert_eq!(
+            shift_quarters(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2022, 4, 1)
+        );
+    }
+
+    #[test]
+    fn test_shift_years() {
+        assert_eq!(
+            shift_years(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2023, 1, 1)
+        );
+
+        assert_eq!(
+            shift_years(NaiveDate::from_ymd(2024, 2, 29), 1),
+            NaiveDate::from_ymd(2025, 2, 28)
+        );
+    }
 }
