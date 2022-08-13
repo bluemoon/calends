@@ -5,7 +5,7 @@
 //!
 //! # Durations of time
 //!
-//! A duration is a unit of time that has some ability to be applied to a date to produce another
+//! A [RelativeDuration] is a unit of time that has some ability to be applied to a date to produce another
 //! date.
 //!
 //! ```
@@ -24,7 +24,7 @@
 //!
 //! # Recurrence & Rules
 //!
-//! Recurrence allows you to specify a ruleset for how events (dates) repeat in time.
+//! [Recurrence] allows you to specify a ruleset for how events (dates) repeat in time.
 //!
 //! ```
 //! use calends::{Recurrence, Rule};

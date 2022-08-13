@@ -1,12 +1,24 @@
 use crate::duration::RelativeDuration;
 
-use super::base::IntervalLike;
+use super::iter::{BackwardIter, ForwardIter};
 use chrono::NaiveDate;
 use fnv::FnvHasher;
 use std::{
+    fmt,
     hash::{Hash, Hasher},
-    ops::Bound,
 };
+
+/// Iteration Error
+pub struct ImpossibleIterator;
+
+impl fmt::Display for ImpossibleIterator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "open intervals cannot be iterated upon because it is infinite on one end"
+        )
+    }
+}
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
@@ -23,7 +35,6 @@ use std::{
 /// - **Start and duration:** The start time plus the duration creates the end of the interval.
 /// Intervals are then iterated on with the given duration. e.g. if the duration is 1 month, then
 /// the next call to the iterator would give you a month in the future.
-///
 /// - **End and duration:** The end time minus the duration creates the beginning of the interval.
 /// Intervals are then iterated on with the given duration.
 ///
@@ -31,11 +42,23 @@ use std::{
 ///
 /// - This interval is by default inclusive on both ends.
 ///
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Interval {
-    start: NaiveDate,
-    duration: RelativeDuration,
-    // TODO: we may want an enumeration to support different serialization types
+/// # Rationale
+///
+/// We use this over [ops::Bound] because bound supports exclusive boundaries and we have made the
+/// decision that it adds too much cognitive load / API cruft so we do not include it.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Interval {
+    /// Indicating that the preceeding direction is unbounded, this is the time leading up to the
+    /// current time.
+    PreceedingOpen(NaiveDate),
+    /// Indicating that the following direction is unbounded, this is the time after the
+    /// current time.
+    FollowingOpen(NaiveDate),
+    /// Indicating up to OR on in the direction of the interval
+    ///
+    /// e.g. if the direction is "forwards" and the end is inclusive then it will include the
+    /// specified end date
+    Closed(NaiveDate, RelativeDuration),
 }
 
 impl Interval {
@@ -53,26 +76,19 @@ impl Interval {
     /// assert_eq!(interval.start_date(), Some(start));
     /// assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
     /// ```
-    pub fn from_start(start: NaiveDate, duration: RelativeDuration) -> Self {
-        Self { start, duration }
+    pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
+        Interval::Closed(date, duration)
     }
 
     /// Create an interval from an end and a duration
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
-        // TODO: subtract for duration
-        Self {
-            start: end + -duration,
-            duration,
-        }
+        Interval::Closed(end + -duration, duration)
     }
 
     /// Create an interval with a specified set of dates
-    pub fn with_dates(start: NaiveDate, _end: NaiveDate) -> Self {
+    pub fn with_dates(date: NaiveDate, _end: NaiveDate) -> Self {
         // TODO: determine the duration based on the delta
-        Self {
-            start,
-            duration: RelativeDuration::months(1),
-        }
+        Interval::Closed(date, RelativeDuration::months(1))
     }
 
     /// Produce a hash for the interval
@@ -86,52 +102,34 @@ impl Interval {
         self.hash(&mut hash);
         base64::encode(hash.finish().to_be_bytes())
     }
-}
 
-impl IntervalLike for Interval {
-    fn start(&self) -> Bound<NaiveDate> {
-        Bound::Included(self.start)
+    /// ISO8601-2:2019 Formatting of intervals
+    pub fn iso8601(&self) -> String {
+        match self {
+            Interval::PreceedingOpen(date) => todo!("../{}", date.to_string()),
+            Interval::FollowingOpen(date) => format!("{}/..", date.to_string()),
+            Interval::Closed(date, duration) => {
+                let start = date.to_string();
+                let end = (*date + *duration).to_string();
+
+                format!("{}/{}", start, end)
+            }
+        }
     }
 
-    fn end(&self) -> Bound<NaiveDate> {
-        Bound::Included(self.start + self.duration)
+    pub fn iter_forward(&self) -> Result<ForwardIter, ImpossibleIterator> {
+        match self {
+            Interval::PreceedingOpen(_) => Err(ImpossibleIterator),
+            Interval::FollowingOpen(_) => Err(ImpossibleIterator),
+            Interval::Closed(date, duration) => Ok(ForwardIter::new(*date, *duration)),
+        }
     }
-}
 
-impl Iterator for Interval {
-    type Item = Interval;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let interval = self.clone();
-        self.start = interval.start + self.duration;
-
-        Some(interval)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_interval() {
-        let start = NaiveDate::from_ymd(2022, 1, 1);
-        let duration = RelativeDuration::months(1);
-
-        let mut interval = Interval::from_start(start, duration);
-
-        assert_eq!(interval.start_date(), Some(start));
-        assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
-
-        // Intervals are inclusive so return the current time span first
-        let next = interval.next().unwrap();
-
-        assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
-
-        let next = interval.next().unwrap();
-
-        assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
-        assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 3, 1)));
+    pub fn iter_backward(&self) -> Result<BackwardIter, ImpossibleIterator> {
+        match self {
+            Interval::PreceedingOpen(_) => Err(ImpossibleIterator),
+            Interval::FollowingOpen(_) => Err(ImpossibleIterator),
+            Interval::Closed(date, duration) => Ok(BackwardIter::new(*date, *duration)),
+        }
     }
 }
