@@ -1,6 +1,6 @@
 use crate::duration::RelativeDuration;
 
-use super::iter::{BackwardIter, ForwardIter};
+use super::iter::Iter;
 use chrono::NaiveDate;
 use fnv::FnvHasher;
 use std::{
@@ -9,6 +9,7 @@ use std::{
 };
 
 /// Iteration Error
+#[derive(Debug)]
 pub struct ImpossibleIterator;
 
 impl fmt::Display for ImpossibleIterator {
@@ -103,6 +104,24 @@ impl Interval {
         base64::encode(hash.finish().to_be_bytes())
     }
 
+    /// Start date of the interval
+    pub fn start_date(&self) -> Option<NaiveDate> {
+        match self {
+            Interval::PreceedingOpen(_) => None,
+            Interval::FollowingOpen(d) => Some(*d),
+            Interval::Closed(d, _) => Some(*d),
+        }
+    }
+
+    /// End date of the interval
+    pub fn end_date(&self) -> Option<NaiveDate> {
+        match self {
+            Interval::PreceedingOpen(d) => Some(*d),
+            Interval::FollowingOpen(_) => None,
+            Interval::Closed(date, duration) => Some(*date + *duration),
+        }
+    }
+
     /// ISO8601-2:2019 Formatting of intervals
     pub fn iso8601(&self) -> String {
         match self {
@@ -117,19 +136,38 @@ impl Interval {
         }
     }
 
-    pub fn iter_forward(&self) -> Result<ForwardIter, ImpossibleIterator> {
+    /// Convert to a struct that implements [Iterator]
+    pub fn iterate(&self) -> Result<Iter, ImpossibleIterator> {
         match self {
             Interval::PreceedingOpen(_) => Err(ImpossibleIterator),
             Interval::FollowingOpen(_) => Err(ImpossibleIterator),
-            Interval::Closed(date, duration) => Ok(ForwardIter::new(*date, *duration)),
+            Interval::Closed(date, duration) => Ok(Iter::new(*date, *duration)),
         }
     }
+}
 
-    pub fn iter_backward(&self) -> Result<BackwardIter, ImpossibleIterator> {
-        match self {
-            Interval::PreceedingOpen(_) => Err(ImpossibleIterator),
-            Interval::FollowingOpen(_) => Err(ImpossibleIterator),
-            Interval::Closed(date, duration) => Ok(BackwardIter::new(*date, *duration)),
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_with_start() -> Result<(), ImpossibleIterator> {
+        let mut iter = Interval::from_start(
+            NaiveDate::from_ymd(2022, 1, 1),
+            RelativeDuration::months(1).with_weeks(-2).with_days(2),
+        )
+        .iterate()?
+        .until_after(NaiveDate::from_ymd(2023, 1, 1));
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 1, 20));
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_date().unwrap(), NaiveDate::from_ymd(2022, 2, 8));
+
+        Ok(())
     }
 }
