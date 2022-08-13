@@ -113,6 +113,10 @@ impl Interval {
         (self.date + self.duration).pred()
     }
 
+    pub fn within(&self, date: NaiveDate) -> bool {
+        date >= self.start_date() && date <= self.end_date()
+    }
+
     /// ISO8601-2:2019 Formatting of intervals
     ///
     /// The standard allows for:
