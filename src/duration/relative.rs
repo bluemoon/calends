@@ -40,12 +40,12 @@ pub struct RelativeImpl {
 
 /// A duration of time which can be positive or negative
 ///
-/// A duration can be:
-/// - Year
-/// - Month
-/// - Week
-/// - Day
+/// # Rationale
 ///
+/// Using ISO8601-2:2019 and CalConnect CC 18011 as guidelines, we have formulated a bitpacked
+/// duration. This duration supports months, weeks and days
+///
+/// # Limitations
 ///
 /// Chrono DateImpl only supports 13 bits for years so around 8000 years
 ///

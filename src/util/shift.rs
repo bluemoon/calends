@@ -10,27 +10,30 @@ use crate::util;
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// # use dateutil::addition;
+/// # use calends::util::shift_months;
 ///
-/// let n1 = addition::add_months_duration(NaiveDate::from_ymd(2022, 1, 1), 1);
+/// let n1 = shift_months(NaiveDate::from_ymd(2022, 1, 1), 1);
 /// assert_eq!(n1, NaiveDate::from_ymd(2022, 2, 1));
 ///
-/// let n2 = addition::add_months_duration(NaiveDate::from_ymd(2022, 2, 3), 2);
+/// let n2 = shift_months(NaiveDate::from_ymd(2022, 2, 3), 2);
 /// assert_eq!(n2, NaiveDate::from_ymd(2022, 4, 3));
+///
+/// let n3 = shift_months(NaiveDate::from_ymd(2022, 2, 3), -1);
+/// assert_eq!(n3, NaiveDate::from_ymd(2022, 1, 3));
 /// ```
 ///
 /// The behavior for end of month works as follows:
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// # use dateutil::addition;
+/// # use calends::util:shift_months;
 ///
 /// assert_eq!(
-///   addition::add_months_duration(NaiveDate::from_ymd(2022, 2, 28), 1),
+///   shift_months(NaiveDate::from_ymd(2022, 2, 28), 1),
 ///   NaiveDate::from_ymd(2022, 3, 31)
 /// );
 /// assert_eq!(
-///   addition::add_months_duration(NaiveDate::from_ymd(2022, 3, 31), 1),
+///   shift_months(NaiveDate::from_ymd(2022, 3, 31), 1),
 ///   NaiveDate::from_ymd(2022, 4, 30)
 /// );
 /// ```
@@ -39,7 +42,7 @@ use crate::util;
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// # use dateutil::addition;
+/// # use calends::util::shift_months;
 ///
 /// let n4 = addition::add_months_duration(NaiveDate::from_ymd(2022, 2, 28), 11);
 /// assert_eq!(n4, NaiveDate::from_ymd(2023, 1, 31));
@@ -47,30 +50,26 @@ use crate::util;
 ///
 ///
 #[inline]
-pub fn shift_months(date: NaiveDate, months_to_add: i32) -> NaiveDate {
-    let mut month = date.month();
-    let mut year = date.year();
-    // TODO: fix u32
-    let month_delta = month + months_to_add as u32;
+pub fn shift_months(date: NaiveDate, months: i32) -> NaiveDate {
+    let mut year = date.year() + (date.month() as i32 + months) / 12;
+    let mut month = (date.month() as i32 + months) % 12;
 
-    if month_delta > 12 {
-        year += 1;
-        month = month_delta - 12;
-    } else {
-        month = month_delta;
+    if month < 1 {
+        year -= 1;
+        month += 12;
     }
 
     let date_end_of_month = util::month_end(date.year(), date.month());
     let day = if date_end_of_month.day() == date.day() {
         // if the current date is the last date of the month, the next month will need to be the
         // last date as well
-        util::month_end(year, month).day()
+        util::month_end(year, month as u32).day()
     } else {
         // get the maximum of the month and clamp it to that, we cannot exceed the end of the current
         // month
-        std::cmp::min(date.day(), util::month_end(year, month).day())
+        std::cmp::min(date.day(), util::month_end(year, month as u32).day())
     };
-    NaiveDate::from_ymd(year, month, day)
+    NaiveDate::from_ymd(year, month as u32, day)
 }
 
 /// Add a quarter to the date supplied
@@ -112,8 +111,8 @@ pub fn shift_quarters(date: NaiveDate, quarters: i32) -> NaiveDate {
 ///
 /// ```
 #[inline]
-pub fn add_year_duration(date: NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(date.year() + 1, date.month(), date.day())
+pub fn shift_years(date: NaiveDate, years: i32) -> NaiveDate {
+    shift_months(date, years * 12)
 }
 
 /// Add a week
@@ -124,16 +123,47 @@ pub fn shift_weeks(date: NaiveDate, delta: i32) -> NaiveDate {
     date + chrono::Duration::weeks(delta as i64)
 }
 
-/// Add a biweek
-///
-/// Adds two weeks
-#[inline]
-pub fn add_biweek_duration(date: NaiveDate) -> NaiveDate {
-    date + chrono::Duration::weeks(2)
-}
-
 /// Add a day
 #[inline]
 pub fn shift_days(date: NaiveDate, days: i32) -> NaiveDate {
     date + chrono::Duration::days(days.into())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_shift_months() {
+        assert_eq!(
+            shift_months(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2022, 2, 1)
+        );
+
+        assert_eq!(
+            shift_months(NaiveDate::from_ymd(2022, 1, 1), -1),
+            NaiveDate::from_ymd(2021, 12, 1)
+        )
+    }
+
+    #[test]
+    fn test_shift_quarters() {
+        assert_eq!(
+            shift_quarters(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2022, 4, 1)
+        );
+    }
+
+    #[test]
+    fn test_shift_years() {
+        assert_eq!(
+            shift_years(NaiveDate::from_ymd(2022, 1, 1), 1),
+            NaiveDate::from_ymd(2023, 1, 1)
+        );
+
+        assert_eq!(
+            shift_years(NaiveDate::from_ymd(2024, 2, 29), 1),
+            NaiveDate::from_ymd(2025, 2, 28)
+        );
+    }
 }

@@ -1,8 +1,9 @@
-pub mod base;
 pub mod bound;
-
 #[allow(clippy::module_inception)]
-pub mod interval;
+pub mod closed;
+pub mod interval_like;
+pub mod iter;
+pub mod open;
 
-pub use base::IntervalLike;
-pub use interval::Interval;
+pub use closed::Interval;
+pub use interval_like::IntervalLike;

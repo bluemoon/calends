@@ -5,7 +5,7 @@
 //!
 //! # Durations of time
 //!
-//! A duration is a unit of time that has some ability to be applied to a date to produce another
+//! A [RelativeDuration] is a unit of time that has some ability to be applied to a date to produce another
 //! date.
 //!
 //! ```
@@ -24,7 +24,7 @@
 //!
 //! # Recurrence & Rules
 //!
-//! Recurrence allows you to specify a ruleset for how events (dates) repeat in time.
+//! [Recurrence] allows you to specify a ruleset for how events (dates) repeat in time.
 //!
 //! ```
 //! use calends::{Recurrence, Rule};
@@ -56,8 +56,8 @@
 //!
 //! let mut interval = Interval::from_start(start, duration);
 //!
-//! assert_eq!(interval.start_date(), Some(start));
-//! assert_eq!(interval.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+//! assert_eq!(interval.start_date(), start);
+//! assert_eq!(interval.end_date(), NaiveDate::from_ymd(2022, 2, 1));
 //!
 //! // Intervals are also iterable because they always have a duration!
 //! // they are inclusive so they return the current time span first

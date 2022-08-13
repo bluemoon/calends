@@ -136,7 +136,7 @@ pub fn end_of_month(d: &NaiveDate) -> NaiveDate {
 
 #[inline]
 pub fn end_of_biweek(d: &NaiveDate) -> NaiveDate {
-    shift::add_biweek_duration(beginning_of_biweek(d)).pred()
+    shift::shift_weeks(beginning_of_biweek(d), 2).pred()
 }
 
 #[inline]
