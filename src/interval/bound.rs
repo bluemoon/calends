@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 
+#[derive(Debug, Clone)]
 pub enum Bound<T> {
     Included(T),
     Unbounded,

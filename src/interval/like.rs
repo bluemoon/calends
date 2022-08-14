@@ -46,11 +46,11 @@ mod tests {
 
     impl IntervalLike for Int {
         fn start(&self) -> Bound<NaiveDate> {
-            self.start
+            self.start.clone()
         }
 
         fn end(&self) -> Bound<NaiveDate> {
-            self.end
+            self.end.clone()
         }
     }
 

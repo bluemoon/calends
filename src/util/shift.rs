@@ -26,7 +26,7 @@ use crate::util;
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// # use calends::util:shift_months;
+/// # use calends::util::shift_months;
 ///
 /// assert_eq!(
 ///   shift_months(NaiveDate::from_ymd(2022, 2, 28), 1),
@@ -44,7 +44,7 @@ use crate::util;
 /// # use chrono::NaiveDate;
 /// # use calends::util::shift_months;
 ///
-/// let n4 = addition::add_months_duration(NaiveDate::from_ymd(2022, 2, 28), 11);
+/// let n4 = shift_months(NaiveDate::from_ymd(2022, 2, 28), 11);
 /// assert_eq!(n4, NaiveDate::from_ymd(2023, 1, 31));
 /// ```
 ///
@@ -101,13 +101,13 @@ pub fn shift_quarters(date: NaiveDate, quarters: i32) -> NaiveDate {
 ///
 /// ```
 /// # use chrono::NaiveDate;
-/// # use dateutil::addition;
+/// # use calends::shift_years;
 ///
-/// let n1 = addition::add_year_duration(NaiveDate::from_ymd(2022, 1, 1));
-/// let n2 = addition::add_year_duration(NaiveDate::from_ymd(1584, 2, 3));
+/// let n1 = shift_years(NaiveDate::from_ymd(2022, 1, 1), 1);
+/// let n2 = shift_years(NaiveDate::from_ymd(1584, 2, 3), -1);
 ///
 /// assert_eq!(n1, NaiveDate::from_ymd(2023, 1, 1));
-/// assert_eq!(n2, NaiveDate::from_ymd(1585, 2, 3));
+/// assert_eq!(n2, NaiveDate::from_ymd(1583, 2, 3));
 ///
 /// ```
 #[inline]
