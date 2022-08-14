@@ -1,6 +1,6 @@
-use crate::duration::RelativeDuration;
+use crate::{duration::RelativeDuration, IntervalLike};
 
-use super::iter::UntilAfter;
+use super::{bound::Bound, iter::UntilAfter};
 use chrono::NaiveDate;
 use std::fmt;
 
@@ -147,6 +147,16 @@ impl Iterator for Interval {
         let interval = Interval::from_start(self.date, self.duration);
         self.date = self.date + self.duration;
         Some(interval)
+    }
+}
+
+impl IntervalLike for Interval {
+    fn start(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.start_date())
+    }
+
+    fn end(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.end_date())
     }
 }
 
