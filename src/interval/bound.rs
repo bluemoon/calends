@@ -1,20 +1,21 @@
-use std::{cmp::Ordering, ops::Bound};
+use std::cmp::Ordering;
+
+#[derive(Debug, Clone)]
+pub enum Bound<T> {
+    Included(T),
+    Unbounded,
+}
 
 pub fn cmp_bound<Q>(e1: &Bound<Q>, e2: &Bound<Q>) -> Ordering
 where
     Q: Ord,
 {
-    // Based on the encoding idea used in `cmp`.
-    // Note that we have inversed the 2nd value in the tuple,
-    // as the Included/Excluded rules are flipped for the upper bound.
     let e1 = match e1 {
-        Bound::Included(x) => Some((x, 2)),
-        Bound::Excluded(x) => Some((x, 1)),
+        Bound::Included(x) => Some(x),
         Bound::Unbounded => None,
     };
     let e2 = match e2 {
-        Bound::Included(x) => Some((x, 2)),
-        Bound::Excluded(x) => Some((x, 1)),
+        Bound::Included(x) => Some(x),
         Bound::Unbounded => None,
     };
 
@@ -53,18 +54,9 @@ where
     }
 }
 
-pub fn to_str<Q>(b: Bound<Q>) -> String {
-    match b {
-        Bound::Included(_) => "inclusive".to_string(),
-        Bound::Excluded(_) => "exclusive".to_string(),
-        Bound::Unbounded => "unbounded".to_string(),
-    }
-}
-
 pub fn to_opt<Q>(b: Bound<Q>) -> Option<Q> {
     match b {
         Bound::Included(q) => Some(q),
-        Bound::Excluded(q) => Some(q),
         Bound::Unbounded => None,
     }
 }

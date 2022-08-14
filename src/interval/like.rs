@@ -1,9 +1,8 @@
 ///! Interval
 ///!
 ///! Used to coalesce both recurring and non-recurring intervals into one interface.
-use super::bound;
+use super::bound::{self, Bound};
 use chrono::NaiveDate;
-use std::ops::Bound;
 
 pub trait IntervalLike {
     fn start(&self) -> Bound<NaiveDate>;
@@ -15,7 +14,6 @@ pub trait IntervalLike {
     fn start_date(&self) -> Option<NaiveDate> {
         match self.start() {
             Bound::Included(d) => Some(d),
-            Bound::Excluded(d) => d.succ_opt(),
             Bound::Unbounded => None,
         }
     }
@@ -26,7 +24,6 @@ pub trait IntervalLike {
     fn end_date(&self) -> Option<NaiveDate> {
         match self.end() {
             Bound::Included(d) => Some(d),
-            Bound::Excluded(d) => d.pred_opt(),
             Bound::Unbounded => None,
         }
     }
@@ -49,11 +46,11 @@ mod tests {
 
     impl IntervalLike for Int {
         fn start(&self) -> Bound<NaiveDate> {
-            self.start
+            self.start.clone()
         }
 
         fn end(&self) -> Bound<NaiveDate> {
-            self.end
+            self.end.clone()
         }
     }
 

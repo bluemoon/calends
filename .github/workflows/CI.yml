@@ -38,6 +38,38 @@ jobs:
       run: |
         cargo fmt --all -- --check
 
+  check-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+    - uses: Swatinem/rust-cache@v1
+    - name: cargo doc
+      env:
+        RUSTDOCFLAGS: "-D broken-intra-doc-links"
+      run: cargo doc --all-features --no-deps
+
+  test-docs:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+    - uses: Swatinem/rust-cache@v1
+    - name: Run doc tests
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --all-features --doc
+
   coverage:
     runs-on: ubuntu-latest
     env:

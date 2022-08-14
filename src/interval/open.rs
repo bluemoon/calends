@@ -1,13 +1,17 @@
 use chrono::NaiveDate;
 
+use crate::IntervalLike;
+
+use super::bound::Bound;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum OpenInterval {
     /// Indicating that the preceeding direction is unbounded, this is the time leading up to the
     /// current time.
-    OpenStart(NaiveDate),
+    Start(NaiveDate),
     /// Indicating that the following direction is unbounded, this is the time after the
     /// current time.
-    OpenEnd(NaiveDate),
+    End(NaiveDate),
 }
 
 impl OpenInterval {
@@ -15,16 +19,35 @@ impl OpenInterval {
     ///
     /// The standard allows for:
     ///
+    /// ```ignore
+    ///
     /// - tiseE =[dtE]["/"][dtE]
     /// - tisdE = [dtE]["/"][duration]
     /// - tisdE = [duration]["/"][dtE]
     ///
+    /// ```
     /// Currently we only represent the top one
     ///
     pub fn iso8601(&self) -> String {
         match self {
-            OpenInterval::OpenStart(date) => format!("../{}", date.to_string()),
-            OpenInterval::OpenEnd(date) => format!("{}/..", date.to_string()),
+            OpenInterval::Start(date) => format!("../{}", date.to_string()),
+            OpenInterval::End(date) => format!("{}/..", date.to_string()),
+        }
+    }
+}
+
+impl IntervalLike for OpenInterval {
+    fn start(&self) -> Bound<NaiveDate> {
+        match self {
+            OpenInterval::Start(s) => Bound::Included(*s),
+            OpenInterval::End(_) => Bound::Unbounded,
+        }
+    }
+
+    fn end(&self) -> Bound<NaiveDate> {
+        match self {
+            OpenInterval::Start(e) => Bound::Included(*e),
+            OpenInterval::End(_) => Bound::Unbounded,
         }
     }
 }

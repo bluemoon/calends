@@ -1,6 +1,6 @@
-use crate::duration::RelativeDuration;
+use crate::{duration::RelativeDuration, IntervalLike};
 
-use super::iter::UntilAfter;
+use super::{bound::Bound, iter::UntilAfter};
 use chrono::NaiveDate;
 use std::fmt;
 
@@ -41,7 +41,7 @@ impl fmt::Display for ImpossibleIterator {
 ///
 /// # Rationale
 ///
-/// We use this over [ops::Bound] because bound supports exclusive boundaries and we have made the
+/// We use this over [std::ops::Bound] because bound supports exclusive boundaries and we have made the
 /// decision that it adds too much cognitive load / API cruft so we do not include it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Interval {
@@ -79,6 +79,9 @@ impl Interval {
     /// # Example
     ///
     /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    ///
     /// let interval = Interval::from_end(
     ///     NaiveDate::from_ymd(2022, 1, 1),
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
@@ -122,9 +125,13 @@ impl Interval {
     ///
     /// The standard allows for:
     ///
+    /// ```ignore
+    ///
     /// - tiseE =[dtE]["/"][dtE]
     /// - tisdE = [dtE]["/"][duration]
     /// - tisdE = [duration]["/"][dtE]
+    ///
+    /// ```
     ///
     /// Currently we only represent the top one
     ///
@@ -147,6 +154,16 @@ impl Iterator for Interval {
         let interval = Interval::from_start(self.date, self.duration);
         self.date = self.date + self.duration;
         Some(interval)
+    }
+}
+
+impl IntervalLike for Interval {
+    fn start(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.start_date())
+    }
+
+    fn end(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.end_date())
     }
 }
 
