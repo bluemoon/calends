@@ -57,20 +57,20 @@
 //! let mut interval = Interval::from_start(start, duration);
 //!
 //! assert_eq!(interval.start_date(), start);
-//! assert_eq!(interval.end_date(), NaiveDate::from_ymd(2022, 2, 1));
+//! assert_eq!(interval.end_date(), NaiveDate::from_ymd(2022, 1, 31));
 //!
 //! // Intervals are also iterable because they always have a duration!
 //! // they are inclusive so they return the current time span first
 //!
 //! let next = interval.next().unwrap();
 //!
-//! assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-//! assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+//! assert_eq!(next.start_date(), NaiveDate::from_ymd(2022, 1, 1));
+//! assert_eq!(next.end_date(), NaiveDate::from_ymd(2022, 1, 31));
 //!
 //! let next = interval.next().unwrap();
 //!
-//! assert_eq!(next.start_date(), Some(NaiveDate::from_ymd(2022, 2, 1)));
-//! assert_eq!(next.end_date(), Some(NaiveDate::from_ymd(2022, 3, 1)));
+//! assert_eq!(next.start_date(), NaiveDate::from_ymd(2022, 2, 1));
+//! assert_eq!(next.end_date(), NaiveDate::from_ymd(2022, 2, 28));
 //!
 //! ```
 //!

@@ -79,6 +79,9 @@ impl Interval {
     /// # Example
     ///
     /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    ///
     /// let interval = Interval::from_end(
     ///     NaiveDate::from_ymd(2022, 1, 1),
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
