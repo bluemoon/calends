@@ -42,8 +42,6 @@ pub enum Rule {
     ///
     /// This covers cases 2.1 and 2.2
     ///
-    /// Note: using a [CalendarBasis] of Day and Week is undefined
-    ///
     /// TODO: Describe the ruleset for finding a day of the week
     Occurence(RelativeDuration, i32, chrono::Weekday),
 }

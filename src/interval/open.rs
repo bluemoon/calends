@@ -19,10 +19,13 @@ impl OpenInterval {
     ///
     /// The standard allows for:
     ///
+    /// ```ignore
+    ///
     /// - tiseE =[dtE]["/"][dtE]
     /// - tisdE = [dtE]["/"][duration]
     /// - tisdE = [duration]["/"][dtE]
     ///
+    /// ```
     /// Currently we only represent the top one
     ///
     pub fn iso8601(&self) -> String {

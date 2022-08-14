@@ -195,8 +195,6 @@ impl RelativeDuration {
     /// - 'P-4M3W' is a duration of negative 4 months and positive 3 weeks, the minus sign can be
     /// applied to each of the components within the serialization format
     ///
-    /// See [serde::rd_iso8601] for usage in serializing
-    ///
     pub fn iso8601(&self) -> String {
         let build = vec![
             (self.num_months(), "M"),

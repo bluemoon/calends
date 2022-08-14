@@ -41,7 +41,7 @@ impl fmt::Display for ImpossibleIterator {
 ///
 /// # Rationale
 ///
-/// We use this over [ops::Bound] because bound supports exclusive boundaries and we have made the
+/// We use this over [std::ops::Bound] because bound supports exclusive boundaries and we have made the
 /// decision that it adds too much cognitive load / API cruft so we do not include it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Interval {
@@ -125,9 +125,13 @@ impl Interval {
     ///
     /// The standard allows for:
     ///
+    /// ```ignore
+    ///
     /// - tiseE =[dtE]["/"][dtE]
     /// - tisdE = [dtE]["/"][duration]
     /// - tisdE = [duration]["/"][dtE]
+    ///
+    /// ```
     ///
     /// Currently we only represent the top one
     ///
