@@ -113,15 +113,15 @@ pub mod oint_iso8601 {
     ///
     /// # Example:
     /// ```rust
-    /// # use calends::{Interval, RelativeDuration};
+    /// # use calends::{OpenInterval, RelativeDuration};
     /// # use serde_derive::{Deserialize, Serialize};
     /// # use chrono::NaiveDate;
-    /// use calends::interval::serde::int_iso8601::serialize;
+    /// use calends::interval::serde::oint_iso8601::serialize;
     ///
     /// #[derive(Serialize)]
     /// struct S {
     ///     #[serde(serialize_with = "serialize")]
-    ///     interval: Interval
+    ///     interval: OpenInterval
     /// }
     ///
     /// let s = S {
@@ -130,7 +130,7 @@ pub mod oint_iso8601 {
     ///     ),
     /// };
     /// let as_string = serde_json::to_string(&s)?;
-    /// assert_eq!(as_string, r#"{"interval":"2022-01-01/.."}"#);
+    /// assert_eq!(as_string, r#"{"interval":"../2022-01-01"}"#);
     /// # Ok::<(), serde_json::Error>(())
     /// ```
     pub fn serialize<S>(int: &OpenInterval, serializer: S) -> Result<S::Ok, S::Error>
