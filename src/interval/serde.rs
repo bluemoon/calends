@@ -16,8 +16,8 @@ where
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("Interval", 2)?;
-        state.serialize_field("start", &self.0.start_date())?;
-        state.serialize_field("end", &self.0.end_date())?;
+        state.serialize_field("start", &self.0.start_opt())?;
+        state.serialize_field("end", &self.0.end_opt())?;
         state.end()
     }
 }

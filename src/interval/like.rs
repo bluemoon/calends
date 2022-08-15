@@ -12,7 +12,7 @@ pub trait IntervalLike {
     ///
     /// If the bounds of the interval for the start date is Unbounded then this function will give
     /// us[None]
-    fn start_date(&self) -> Option<NaiveDate> {
+    fn start_opt(&self) -> Option<NaiveDate> {
         match self.bound_start() {
             Bound::Included(d) => Some(d),
             Bound::Unbounded => None,
@@ -22,7 +22,7 @@ pub trait IntervalLike {
     /// End date in the form of an option
     ///
     /// Unbounded gives us [None]
-    fn end_date(&self) -> Option<NaiveDate> {
+    fn end_opt(&self) -> Option<NaiveDate> {
         match self.bound_end() {
             Bound::Included(d) => Some(d),
             Bound::Unbounded => None,
@@ -97,7 +97,7 @@ mod tests {
             end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
         };
 
-        assert_eq!(i1.start_date(), NaiveDate::from_ymd_opt(2022, 1, 1));
+        assert_eq!(i1.start_opt(), NaiveDate::from_ymd_opt(2022, 1, 1));
     }
 
     #[test]
@@ -107,6 +107,6 @@ mod tests {
             end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
         };
 
-        assert_eq!(i1.end_date(), NaiveDate::from_ymd_opt(2022, 12, 31));
+        assert_eq!(i1.end_opt(), NaiveDate::from_ymd_opt(2022, 12, 31));
     }
 }

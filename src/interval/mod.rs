@@ -8,4 +8,4 @@ pub mod serde;
 
 pub use closed::Interval;
 pub use like::IntervalLike;
-pub use open::{OpenEndInterval, OpenStartInterval};
+pub use open::{UnboundedEndInterval, UnboundedStartInterval};

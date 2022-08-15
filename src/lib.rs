@@ -94,7 +94,7 @@ pub mod recurrence;
 pub mod util;
 
 pub use crate::duration::RelativeDuration;
-pub use crate::interval::{Interval, IntervalLike, OpenEndInterval, OpenStartInterval};
+pub use crate::interval::{Interval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval};
 pub use crate::recurrence::Recurrence;
 pub use crate::recurrence::Rule;
 pub use crate::util::*;
