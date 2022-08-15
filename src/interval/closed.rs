@@ -1,7 +1,8 @@
 use crate::{duration::RelativeDuration, IntervalLike};
 
-use super::{bound::Bound, iter::UntilAfter};
+use super::{bound::Bound, iter::UntilAfter, marker, serde::SerializeInterval};
 use chrono::NaiveDate;
+use serde::{Serialize, Serializer};
 use std::fmt;
 
 /// Iteration Error
@@ -19,7 +20,6 @@ impl fmt::Display for ImpossibleIterator {
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
-///
 ///
 /// ## Interval creation rules
 ///
@@ -158,12 +158,24 @@ impl Iterator for Interval {
 }
 
 impl IntervalLike for Interval {
-    fn start(&self) -> Bound<NaiveDate> {
+    fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.start_date())
     }
 
-    fn end(&self) -> Bound<NaiveDate> {
+    fn bound_end(&self) -> Bound<NaiveDate> {
         Bound::Included(self.end_date())
+    }
+}
+
+impl marker::Start for Interval {}
+impl marker::End for Interval {}
+
+impl Serialize for Interval {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        SerializeInterval(self.clone()).serialize(serializer)
     }
 }
 

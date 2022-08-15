@@ -5,14 +5,15 @@ use super::bound::{self, Bound};
 use chrono::NaiveDate;
 
 pub trait IntervalLike {
-    fn start(&self) -> Bound<NaiveDate>;
-    fn end(&self) -> Bound<NaiveDate>;
+    fn bound_start(&self) -> Bound<NaiveDate>;
+    fn bound_end(&self) -> Bound<NaiveDate>;
 
     /// Start date in the form of an option
     ///
-    /// Unbounded gives us [None]
+    /// If the bounds of the interval for the start date is Unbounded then this function will give
+    /// us[None]
     fn start_date(&self) -> Option<NaiveDate> {
-        match self.start() {
+        match self.bound_start() {
             Bound::Included(d) => Some(d),
             Bound::Unbounded => None,
         }
@@ -22,7 +23,7 @@ pub trait IntervalLike {
     ///
     /// Unbounded gives us [None]
     fn end_date(&self) -> Option<NaiveDate> {
-        match self.end() {
+        match self.bound_end() {
             Bound::Included(d) => Some(d),
             Bound::Unbounded => None,
         }
@@ -31,7 +32,31 @@ pub trait IntervalLike {
     /// Determine whether a date falls within the current interval
     ///
     fn within(&self, date: NaiveDate) -> bool {
-        bound::within(date, &self.start(), &self.end())
+        bound::within(date, &self.bound_start(), &self.bound_end())
+    }
+
+    /// ISO8601-2:2019 Formatting of intervals
+    ///
+    /// The standard allows for:
+    ///
+    /// ```ignore
+    ///
+    /// - tiseE =[dtE]["/"][dtE]
+    /// - tisdE = [dtE]["/"][duration]
+    /// - tisdE = [duration]["/"][dtE]
+    ///
+    /// ```
+    /// Currently we only represent the top one
+    ///
+    fn iso8601(&self) -> String {
+        match (self.bound_start(), self.bound_end()) {
+            (Bound::Included(s), Bound::Included(e)) => format!("{}/{}", s, e),
+            (Bound::Included(s), Bound::Unbounded) => format!("{}/..", s),
+            (Bound::Unbounded, Bound::Included(e)) => format!("../{}", e),
+            // yeah don't unbound it on both sides because thats just weird
+            // but we still represent it
+            (Bound::Unbounded, Bound::Unbounded) => format!("../.."),
+        }
     }
 }
 
@@ -45,11 +70,11 @@ mod tests {
     }
 
     impl IntervalLike for Int {
-        fn start(&self) -> Bound<NaiveDate> {
+        fn bound_start(&self) -> Bound<NaiveDate> {
             self.start.clone()
         }
 
-        fn end(&self) -> Bound<NaiveDate> {
+        fn bound_end(&self) -> Bound<NaiveDate> {
             self.end.clone()
         }
     }
