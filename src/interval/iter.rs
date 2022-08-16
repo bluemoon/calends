@@ -2,6 +2,8 @@ use chrono::NaiveDate;
 
 use crate::Interval;
 
+use super::marker::End;
+
 pub struct UntilAfter<T>
 where
     T: Iterator<Item = Interval>,
@@ -28,7 +30,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match self.iter.next() {
             Some(item) => {
-                if item.end_date() >= self.until {
+                if item.end() >= self.until {
                     None
                 } else {
                     Some(item)

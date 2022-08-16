@@ -1,7 +1,8 @@
 use crate::{duration::RelativeDuration, IntervalLike};
 
-use super::{bound::Bound, iter::UntilAfter};
+use super::{bound::Bound, iter::UntilAfter, marker, serde::SerializeInterval};
 use chrono::NaiveDate;
+use serde::{Serialize, Serializer};
 use std::fmt;
 
 /// Iteration Error
@@ -19,7 +20,6 @@ impl fmt::Display for ImpossibleIterator {
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
-///
 ///
 /// ## Interval creation rules
 ///
@@ -61,14 +61,15 @@ impl Interval {
     /// ```
     /// use chrono::NaiveDate;
     /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
     ///
     /// let start = NaiveDate::from_ymd(2022, 1, 1);
     /// let duration = RelativeDuration::months(1);
     ///
     /// let mut interval = Interval::from_start(start, duration);
     ///
-    /// assert_eq!(interval.start_date(), start);
-    /// assert_eq!(interval.end_date(), NaiveDate::from_ymd(2022, 1, 31));
+    /// assert_eq!(interval.start(), start);
+    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
     /// ```
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         Interval { date, duration }
@@ -81,14 +82,15 @@ impl Interval {
     /// ```
     /// use chrono::NaiveDate;
     /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = Interval::from_end(
     ///     NaiveDate::from_ymd(2022, 1, 1),
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
     /// );
     ///
-    /// assert_eq!(interval.start_date(), NaiveDate::from_ymd(2021, 12, 13));
-    /// assert_eq!(interval.end_date(), NaiveDate::from_ymd(2021, 12, 31));
+    /// assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
+    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
     /// ```
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval {
@@ -107,43 +109,39 @@ impl Interval {
     }
 
     /// Start date of the interval
-    pub fn start_date(&self) -> NaiveDate {
+    fn computed_start_date(&self) -> NaiveDate {
         self.date
     }
 
     /// End date of the interval
-    pub fn end_date(&self) -> NaiveDate {
+    fn computed_end_date(&self) -> NaiveDate {
         (self.date + self.duration).pred()
-    }
-
-    /// Determine whether or not a date is inside of an interval
-    pub fn within(&self, date: NaiveDate) -> bool {
-        date >= self.start_date() && date <= self.end_date()
-    }
-
-    /// ISO8601-2:2019 Formatting of intervals
-    ///
-    /// The standard allows for:
-    ///
-    /// ```ignore
-    ///
-    /// - tiseE =[dtE]["/"][dtE]
-    /// - tisdE = [dtE]["/"][duration]
-    /// - tisdE = [duration]["/"][dtE]
-    ///
-    /// ```
-    ///
-    /// Currently we only represent the top one
-    ///
-    pub fn iso8601(&self) -> String {
-        let start = self.date.to_string();
-        let end = (self.date + self.duration).to_string();
-
-        format!("{}/{}", start, end)
     }
 
     pub fn until_after(self, until: NaiveDate) -> UntilAfter<Interval> {
         UntilAfter::new(self, until)
+    }
+}
+
+impl IntervalLike for Interval {
+    fn bound_start(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.computed_start_date())
+    }
+
+    fn bound_end(&self) -> Bound<NaiveDate> {
+        Bound::Included(self.computed_end_date())
+    }
+}
+
+impl marker::Start for Interval {}
+impl marker::End for Interval {}
+
+impl Serialize for Interval {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        SerializeInterval(self.clone()).serialize(serializer)
     }
 }
 
@@ -152,43 +150,34 @@ impl Iterator for Interval {
 
     fn next(&mut self) -> Option<Self::Item> {
         let interval = Interval::from_start(self.date, self.duration);
+        // to prevent overlapping dates we add one day
         self.date = self.date + self.duration;
         Some(interval)
     }
 }
 
-impl IntervalLike for Interval {
-    fn start(&self) -> Bound<NaiveDate> {
-        Bound::Included(self.start_date())
-    }
-
-    fn end(&self) -> Bound<NaiveDate> {
-        Bound::Included(self.end_date())
-    }
-}
-
 #[cfg(test)]
 mod tests {
+    use crate::interval::marker::{End, Start};
+
     use super::*;
 
     #[test]
     fn test_from_start() {
-        let mut iter = Interval::from_start(
-            NaiveDate::from_ymd(2022, 1, 1),
-            RelativeDuration::months(1).with_weeks(-2).with_days(2),
-        )
-        .until_after(NaiveDate::from_ymd(2023, 1, 1));
+        let mut iter =
+            Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), RelativeDuration::months(1))
+                .until_after(NaiveDate::from_ymd(2023, 1, 1));
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_date(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(next.end_date(), NaiveDate::from_ymd(2022, 1, 19));
+        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
+        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 31));
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_date(), NaiveDate::from_ymd(2022, 1, 20));
-        assert_eq!(next.end_date(), NaiveDate::from_ymd(2022, 2, 7));
+        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 1));
+        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 28));
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_date(), NaiveDate::from_ymd(2022, 2, 8));
+        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 3, 1));
     }
 
     #[test]
@@ -198,7 +187,7 @@ mod tests {
             RelativeDuration::months(1).with_weeks(-2).with_days(2),
         );
 
-        assert_eq!(interval.start_date(), NaiveDate::from_ymd(2021, 12, 13));
-        assert_eq!(interval.end_date(), NaiveDate::from_ymd(2021, 12, 31));
+        assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
+        assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
     }
 }

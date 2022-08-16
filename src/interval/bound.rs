@@ -80,4 +80,22 @@ mod tests {
             Ordering::Greater
         )
     }
+
+    #[test]
+    fn test_cmp_bound() {
+        assert_eq!(
+            cmp_bound(&Bound::Included(3), &Bound::Included(4)),
+            Ordering::Less
+        );
+
+        assert_eq!(
+            cmp_bound(&Bound::Included(4), &Bound::Included(3)),
+            Ordering::Greater
+        );
+
+        assert_eq!(
+            cmp_bound(&Bound::Included(4), &Bound::Unbounded),
+            Ordering::Less
+        );
+    }
 }
