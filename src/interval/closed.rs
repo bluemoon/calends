@@ -61,14 +61,15 @@ impl Interval {
     /// ```
     /// use chrono::NaiveDate;
     /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
     ///
     /// let start = NaiveDate::from_ymd(2022, 1, 1);
     /// let duration = RelativeDuration::months(1);
     ///
     /// let mut interval = Interval::from_start(start, duration);
     ///
-    /// assert_eq!(interval.start_date(), start);
-    /// assert_eq!(interval.end_date(), NaiveDate::from_ymd(2022, 1, 31));
+    /// assert_eq!(interval.start(), start);
+    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
     /// ```
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         Interval { date, duration }
@@ -81,14 +82,15 @@ impl Interval {
     /// ```
     /// use chrono::NaiveDate;
     /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = Interval::from_end(
     ///     NaiveDate::from_ymd(2022, 1, 1),
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
     /// );
     ///
-    /// assert_eq!(interval.start_date(), NaiveDate::from_ymd(2021, 12, 13));
-    /// assert_eq!(interval.end_date(), NaiveDate::from_ymd(2021, 12, 31));
+    /// assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
+    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
     /// ```
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval {
@@ -121,16 +123,6 @@ impl Interval {
     }
 }
 
-impl Iterator for Interval {
-    type Item = Interval;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let interval = Interval::from_start(self.date, self.duration);
-        self.date = self.date + self.duration;
-        Some(interval)
-    }
-}
-
 impl IntervalLike for Interval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.computed_start_date())
@@ -153,6 +145,17 @@ impl Serialize for Interval {
     }
 }
 
+impl Iterator for Interval {
+    type Item = Interval;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let interval = Interval::from_start(self.date, self.duration);
+        // to prevent overlapping dates we add one day
+        self.date = self.date + self.duration;
+        Some(interval)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::interval::marker::{End, Start};
@@ -161,22 +164,20 @@ mod tests {
 
     #[test]
     fn test_from_start() {
-        let mut iter = Interval::from_start(
-            NaiveDate::from_ymd(2022, 1, 1),
-            RelativeDuration::months(1).with_weeks(-2).with_days(2),
-        )
-        .until_after(NaiveDate::from_ymd(2023, 1, 1));
+        let mut iter =
+            Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), RelativeDuration::months(1))
+                .until_after(NaiveDate::from_ymd(2023, 1, 1));
 
         let next = iter.next().unwrap();
         assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 19));
+        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 31));
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 20));
-        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 7));
+        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 1));
+        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 28));
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 8));
+        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 3, 1));
     }
 
     #[test]
