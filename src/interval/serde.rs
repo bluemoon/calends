@@ -67,7 +67,7 @@ pub mod int_iso8601 {
     ///     ),
     /// };
     /// let as_string = serde_json::to_string(&s)?;
-    /// assert_eq!(as_string, r#"{"interval":"2022-01-01/2022-03-29"}"#);
+    /// assert_eq!(as_string, r#"{"interval":"2022-01-01/2022-03-28"}"#);
     /// # Ok::<(), serde_json::Error>(())
     /// ```
     pub fn serialize<S, I>(int: &I, serializer: S) -> Result<S::Ok, S::Error>
