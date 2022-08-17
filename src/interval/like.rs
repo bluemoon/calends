@@ -4,7 +4,7 @@
 use super::bound::{self, Bound};
 use chrono::NaiveDate;
 
-pub trait IntervalLike {
+pub trait IntervalLike: Clone + PartialEq + Eq + serde::Serialize {
     fn bound_start(&self) -> Bound<NaiveDate>;
     fn bound_end(&self) -> Bound<NaiveDate>;
 
@@ -64,26 +64,27 @@ pub trait IntervalLike {
 mod tests {
     use super::*;
 
+    #[derive(Clone, PartialEq, Eq, serde::Serialize)]
     struct Int {
-        pub start: Bound<NaiveDate>,
-        pub end: Bound<NaiveDate>,
+        pub start: NaiveDate,
+        pub end: NaiveDate,
     }
 
     impl IntervalLike for Int {
         fn bound_start(&self) -> Bound<NaiveDate> {
-            self.start.clone()
+            Bound::Included(self.start.clone())
         }
 
         fn bound_end(&self) -> Bound<NaiveDate> {
-            self.end.clone()
+            Bound::Included(self.end.clone())
         }
     }
 
     #[test]
     fn test_within() {
         let i1 = Int {
-            start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
-            end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
+            start: NaiveDate::from_ymd(2022, 1, 1),
+            end: NaiveDate::from_ymd(2022, 12, 31),
         };
 
         assert_eq!(i1.within(NaiveDate::from_ymd(2022, 5, 18)), true);
@@ -93,8 +94,8 @@ mod tests {
     #[test]
     fn test_start_date() {
         let i1 = Int {
-            start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
-            end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
+            start: NaiveDate::from_ymd(2022, 1, 1),
+            end: NaiveDate::from_ymd(2022, 12, 31),
         };
 
         assert_eq!(i1.start_opt(), NaiveDate::from_ymd_opt(2022, 1, 1));
@@ -103,8 +104,8 @@ mod tests {
     #[test]
     fn test_end_date() {
         let i1 = Int {
-            start: Bound::Included(NaiveDate::from_ymd(2022, 1, 1)),
-            end: Bound::Included(NaiveDate::from_ymd(2022, 12, 31)),
+            start: NaiveDate::from_ymd(2022, 1, 1),
+            end: NaiveDate::from_ymd(2022, 12, 31),
         };
 
         assert_eq!(i1.end_opt(), NaiveDate::from_ymd_opt(2022, 12, 31));
