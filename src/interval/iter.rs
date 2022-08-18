@@ -4,6 +4,7 @@ use crate::Interval;
 
 use super::marker::End;
 
+#[derive(Debug, Clone)]
 pub struct UntilAfter<T>
 where
     T: Iterator<Item = Interval>,

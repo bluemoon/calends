@@ -3,20 +3,6 @@ use crate::{duration::RelativeDuration, IntervalLike};
 use super::{bound::Bound, iter::UntilAfter, marker, serde::SerializeInterval};
 use chrono::NaiveDate;
 use serde::{Serialize, Serializer};
-use std::fmt;
-
-/// Iteration Error
-#[derive(Debug)]
-pub struct ImpossibleIterator;
-
-impl fmt::Display for ImpossibleIterator {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "open intervals cannot be iterated upon because it is infinite on one end"
-        )
-    }
-}
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
