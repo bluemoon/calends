@@ -29,7 +29,7 @@ where
 }
 
 /// Iterates until a certain point in time
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Until<T>
 where
     T: Iterator<Item = NaiveDate>,
