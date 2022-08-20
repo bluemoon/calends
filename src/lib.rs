@@ -90,6 +90,7 @@
 
 pub mod duration;
 pub mod event;
+pub mod grouping;
 pub mod interval;
 pub mod recurrence;
 pub mod util;
