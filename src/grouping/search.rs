@@ -37,7 +37,7 @@ impl Grouping {
     }
 
     pub fn from_date_for_half(date: NaiveDate) -> Self {
-        Grouping::Half(date.year(), (date.month() / 2 + 1).try_into().unwrap())
+        Grouping::Half(date.year(), ((date.month() - 1) / 6 + 1).try_into().unwrap())
     }
 
     pub fn into_interval(&self) -> Interval {
@@ -46,7 +46,11 @@ impl Grouping {
                 NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
                 RelativeDuration::months(3),
             ),
-            Grouping::Half(_, _) => todo!(),
+
+            Grouping::Half(year, half) => Interval::from_start(
+                NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
+                RelativeDuration::months(6),
+            ),
         }
     }
 }
@@ -72,6 +76,27 @@ mod tests {
 
     #[test]
     fn test_group_quarter_interval() {
+        let group = Grouping::from_date_for_quarter(NaiveDate::from_ymd(2020, 2, 29));
+        let interval = group.into_interval();
+        assert_eq!(interval.start(), NaiveDate::from_ymd(2020, 1, 1));
+        assert_eq!(interval.end(), NaiveDate::from_ymd(2020, 3, 31));
+    }
+
+    #[test]
+    fn test_group_half() {
+        assert_eq!(
+            Grouping::from_date_for_half(NaiveDate::from_ymd(2020, 2, 29)),
+            Grouping::Half(2020, 1)
+        );
+
+        assert_eq!(
+            Grouping::from_date_for_half(NaiveDate::from_ymd(2022, 12, 31)),
+            Grouping::Half(2022, 2)
+        )
+    }
+
+    #[test]
+    fn test_group_half_interval() {
         let group = Grouping::from_date_for_quarter(NaiveDate::from_ymd(2020, 2, 29));
         let interval = group.into_interval();
         assert_eq!(interval.start(), NaiveDate::from_ymd(2020, 1, 1));
