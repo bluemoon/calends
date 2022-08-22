@@ -90,9 +90,9 @@
 
 pub mod duration;
 pub mod event;
-pub mod grouping;
 pub mod interval;
 pub mod recurrence;
+pub mod unit;
 pub mod util;
 
 pub use crate::duration::RelativeDuration;
