@@ -77,9 +77,9 @@ impl Display for CalendarUnit {
         match self {
             CalendarUnit::Year(y) => write!(f, "{}", y),
             CalendarUnit::Quarter(y, q) => write!(f, "{}-Q{}", y, q),
-            CalendarUnit::Half(_, _) => todo!(),
-            CalendarUnit::Month(_, _) => todo!(),
-            CalendarUnit::Week(_, _) => todo!(),
+            CalendarUnit::Half(y, h) => write!(f, "{}-H{}", y, h),
+            CalendarUnit::Month(y, m) => write!(f, "{}-{}", y, m),
+            CalendarUnit::Week(y, w) => write!(f, "{}-W{}", y, w),
         }
     }
 }
