@@ -90,12 +90,15 @@
 
 pub mod duration;
 pub mod event;
+pub mod grain;
 pub mod interval;
 pub mod recurrence;
+pub mod unit;
 pub mod util;
 
 pub use crate::duration::RelativeDuration;
 pub use crate::interval::{Interval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval};
 pub use crate::recurrence::Recurrence;
 pub use crate::recurrence::Rule;
+pub use crate::unit::CalendarUnit;
 pub use crate::util::*;
