@@ -86,11 +86,10 @@ impl Interval {
     }
 
     /// Create an interval with a specified set of dates
-    pub fn with_dates(date: NaiveDate, _end: NaiveDate) -> Self {
-        // TODO: determine the duration based on the delta
+    pub fn with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         Interval {
-            date,
-            duration: RelativeDuration::months(1),
+            date: start,
+            duration: RelativeDuration::from_duration_between(start, end),
         }
     }
 
