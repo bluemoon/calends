@@ -100,5 +100,6 @@ pub use crate::duration::RelativeDuration;
 pub use crate::interval::{Interval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval};
 pub use crate::recurrence::Recurrence;
 pub use crate::recurrence::Rule;
+pub use crate::unit::convert::*;
 pub use crate::unit::CalendarUnit;
 pub use crate::util::*;
