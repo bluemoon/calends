@@ -1,6 +1,6 @@
 [package]
 name = "calends"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Bradford Toney <bradford.toney@gmail.com>"]
 edition = "2021"
 publish = true 
@@ -20,4 +20,4 @@ serde_json = { version = "1" }
 
 [lib]
 name = "calends"
-
+path = "src/lib.rs"
