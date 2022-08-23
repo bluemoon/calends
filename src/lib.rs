@@ -1,5 +1,3 @@
-//! # calends
-//!
 //! calends is a library for durations, intervals and other calendar related operations. It is
 //! designed to work with chrono.
 //!

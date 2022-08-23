@@ -20,4 +20,4 @@ serde_json = { version = "1" }
 
 [lib]
 name = "calends"
-
+path = "src/lib.rs"
