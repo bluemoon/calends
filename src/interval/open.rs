@@ -46,6 +46,12 @@ pub struct UnboundedEndInterval {
     start: NaiveDate,
 }
 
+impl UnboundedEndInterval {
+    pub fn new(start: NaiveDate) -> Self {
+        Self { start }
+    }
+}
+
 impl IntervalLike for UnboundedEndInterval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.start)
