@@ -2,6 +2,10 @@ use chrono::{Datelike, NaiveDate};
 
 use super::domain::CalendarUnit;
 
+pub fn convert_to_year(date: NaiveDate) -> CalendarUnit {
+    CalendarUnit::Year(date.year())
+}
+
 pub fn convert_to_quarter(date: NaiveDate) -> CalendarUnit {
     CalendarUnit::Quarter(
         date.year(),
