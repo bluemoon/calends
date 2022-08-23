@@ -48,6 +48,26 @@ pub struct RelativeImpl {
 pub struct RelativeDuration(RelativeImpl);
 
 impl RelativeDuration {
+    /// Returns a RelativeDuration for a given set of dates
+    ///
+    /// Calculate the difference between two sets of dates and return back a duration
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use calends::RelativeDuration;
+    /// # use chrono::NaiveDate;
+    ///
+    /// let duration = RelativeDuration::from_duration_between(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     NaiveDate::from_ymd(2023, 1, 1),
+    ///  );
+    ///
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd(2022, 1, 1) + duration,
+    ///     NaiveDate::from_ymd(2023, 1, 1)
+    /// );
+    /// ```
     pub fn from_duration_between(start: NaiveDate, end: NaiveDate) -> RelativeDuration {
         let mut months = (end.year() - start.year()) * 12;
         months += (end.month() - start.month()) as i32;
