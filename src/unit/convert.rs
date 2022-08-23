@@ -41,12 +41,12 @@ mod tests {
     fn test_convert_week() {
         assert_eq!(
             convert_to_iso_week(NaiveDate::from_ymd(2020, 2, 29)),
-            CalendarUnit::Week(2020, 2)
+            CalendarUnit::Week(2020, 9)
         );
 
         assert_eq!(
             convert_to_iso_week(NaiveDate::from_ymd(2022, 12, 31)),
-            CalendarUnit::Week(2022, 12)
+            CalendarUnit::Week(2022, 52)
         )
     }
 
