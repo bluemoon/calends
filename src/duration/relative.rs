@@ -1,30 +1,11 @@
 //! Implement a Duration that extends chrono and adds Quarter and Month
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use modular_bitfield::bitfield;
 use modular_bitfield::prelude::B20;
 
 use crate::shift;
-
-// const fn min_bit_size(bits: u32) -> i64 {
-//     let base: u32 = 2;
-//     -(base.pow(bits - 1 as u32) as i64)
-// }
-//
-// const fn max_bit_size(bits: u32) -> i64 {
-//     let base: u32 = 2;
-//     base.pow(bits - 1 as u32) as i64
-// }
-//
-// const MIN_MONTHS: i64 = min_bit_size(20);
-// const MAX_MONTHS: i64 = max_bit_size(20);
-//
-// const MIN_WEEKS: i64 = min_bit_size(20);
-// const MAX_WEEKS: i64 = max_bit_size(20);
-//
-// const MIN_DAYS: i64 = min_bit_size(10);
-// const MAX_DAYS: i64 = max_bit_size(10);
 
 #[bitfield]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -67,6 +48,33 @@ pub struct RelativeImpl {
 pub struct RelativeDuration(RelativeImpl);
 
 impl RelativeDuration {
+    /// Returns a RelativeDuration for a given set of dates
+    ///
+    /// Calculate the difference between two sets of dates and return back a duration
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use calends::RelativeDuration;
+    /// # use chrono::NaiveDate;
+    ///
+    /// let duration = RelativeDuration::from_duration_between(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     NaiveDate::from_ymd(2023, 1, 1),
+    ///  );
+    ///
+    /// assert_eq!(
+    ///     NaiveDate::from_ymd(2022, 1, 1) + duration,
+    ///     NaiveDate::from_ymd(2023, 1, 1)
+    /// );
+    /// ```
+    pub fn from_duration_between(start: NaiveDate, end: NaiveDate) -> RelativeDuration {
+        let mut months = (end.year() - start.year()) * 12;
+        months += (end.month() - start.month()) as i32;
+        let days = (end.day() - start.day()) as i32;
+        RelativeDuration::from_raw(months, 0, days).unwrap()
+    }
+
     pub fn from_mwd(months: i32, weeks: i32, days: i32) -> RelativeDuration {
         RelativeDuration::from_raw(months, weeks, days)
             .expect("relative duration is invalid and exceeds bounds")
@@ -293,16 +301,67 @@ impl Add<RelativeDuration> for NaiveDate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use quickcheck::{Arbitrary, Gen};
-    // use quickcheck_macros::quickcheck;
-    //
-    //
-    // #[quickcheck]
-    // fn test_arb_durations(m: i32, w: i32, d: i32) {
-    //     let rd = RelativeDuration::from_mwd(m, w, d);
-    //     assert!(rd.num_days() == d && rd.num_weeks() == w && rd.num_months() == m)
-    // }
-    //
+
+    #[test]
+    fn test_from_duration_transits_year() {
+        let duration = RelativeDuration::from_duration_between(
+            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd(2023, 1, 1),
+        );
+
+        assert_eq!(
+            NaiveDate::from_ymd(2022, 1, 1) + duration,
+            NaiveDate::from_ymd(2023, 1, 1)
+        );
+    }
+
+    #[test]
+    fn test_from_duration_transits_month() {
+        let duration = RelativeDuration::from_duration_between(
+            NaiveDate::from_ymd(2023, 3, 1),
+            NaiveDate::from_ymd(2023, 3, 31),
+        );
+
+        assert_eq!(
+            NaiveDate::from_ymd(2023, 3, 1) + duration,
+            NaiveDate::from_ymd(2023, 3, 31)
+        );
+    }
+
+    #[test]
+    fn test_from_duration_transits_months_and_days() {
+        let duration = RelativeDuration::from_duration_between(
+            NaiveDate::from_ymd(2023, 3, 1),
+            NaiveDate::from_ymd(2023, 4, 20),
+        );
+
+        assert_eq!(
+            NaiveDate::from_ymd(2023, 3, 1) + duration,
+            NaiveDate::from_ymd(2023, 4, 20)
+        );
+    }
+
+    #[test]
+    fn test_from_duration_between_year() {
+        let duration = RelativeDuration::from_duration_between(
+            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd(2023, 1, 1),
+        );
+
+        assert_eq!(duration.num_months(), 12)
+    }
+
+    #[test]
+    fn test_from_duration_between_month() {
+        let duration = RelativeDuration::from_duration_between(
+            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd(2022, 2, 1),
+        );
+
+        assert_eq!(duration.num_months(), 1);
+        assert_eq!(duration.num_days(), 0);
+    }
+
     #[test]
     fn test_display() {
         assert_eq!(
