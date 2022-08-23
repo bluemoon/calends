@@ -16,6 +16,8 @@ use crate::{Interval, RelativeDuration};
 /// searching and may be a little confusing. It may also be advantageous for the consumer of the
 /// API to do things like iterate by actual quarters.
 ///
+/// This will also likely be useful if custom fiscal calendars ever get added
+///
 #[derive(Debug, PartialEq, Eq)]
 pub enum CalendarUnit {
     Year(i32),

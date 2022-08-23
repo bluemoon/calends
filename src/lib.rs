@@ -89,7 +89,6 @@
 //! ```
 
 pub mod duration;
-pub mod event;
 pub mod grain;
 pub mod interval;
 pub mod recurrence;
