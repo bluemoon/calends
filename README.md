@@ -25,7 +25,7 @@ assert_eq!(
 ### Serialization
 
 There are two ways to seriaize a RelativeDuration. The first one serializes it as an object.
-and the second way is an ISO8601-2:2019 compatible serializer. Because the formwat is not
+and the second way is an ISO8601-2:2019 compatible serializer. Because the format is not
 widely used yet we do not set it as the default (de)serializer.
 
 ```rust
