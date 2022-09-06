@@ -20,6 +20,27 @@
 //! );
 //! ```
 //!
+//! ## Serialization
+//!
+//! To serialize into an ISO8601-2:2019 format you can use the ISO8601 serde that we have provided
+//!
+//! ```
+//! #[derive(Debug, serde::Deserialize, serde::Serialize)]
+//! struct S {
+//!    #[serde(
+//!      deserialize_with = "rd_iso8601::deserialize",
+//!      serialize_with = "rd_iso8601::serialize"
+//!    )]
+//!    rd: RelativeDuration,
+//! }
+//!
+//! let rd = RelativeDuration::default().with_days(1).with_months(23);
+//! let s = S { rd };
+//!
+//! let parsed: S = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
+//! assert_eq!(rd, parsed.rd)
+//! ```
+//!
 //! # Recurrence & Rules
 //!
 //! [Recurrence] allows you to specify a ruleset for how events (dates) repeat in time.
