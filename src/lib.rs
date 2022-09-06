@@ -20,6 +20,35 @@
 //! );
 //! ```
 //!
+//! ## Serialization
+//!
+//! There are two ways to seriaize a RelativeDuration. The first one serializes it as an object.
+//! and the second way is an ISO8601-2:2019 compatible serializer. Because the formwat is not
+//! widely used yet we do not set it as the default (de)serializer.
+//!
+//! ```
+//! use calends::RelativeDuration;
+//! use calends::rd_iso8601;
+//!
+//! #[derive(Debug, serde::Deserialize, serde::Serialize)]
+//! struct S {
+//!    #[serde(
+//!      deserialize_with = "rd_iso8601::deserialize",
+//!      serialize_with = "rd_iso8601::serialize"
+//!    )]
+//!    rd: RelativeDuration,
+//! }
+//!
+//! let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
+//! let s = S { rd };
+//!
+//! let rd_string = serde_json::to_string(&s).unwrap();
+//! assert_eq!(rd_string, r#"{"rd":"P23M-1W1D"}"#);
+//!
+//! let parsed: S = serde_json::from_str(&rd_string).unwrap();
+//! assert_eq!(rd, parsed.rd)
+//! ```
+//!
 //! # Recurrence & Rules
 //!
 //! [Recurrence] allows you to specify a ruleset for how events (dates) repeat in time.
@@ -93,6 +122,7 @@ pub mod recurrence;
 pub mod unit;
 pub mod util;
 
+pub use crate::duration::serde::rd_iso8601;
 pub use crate::duration::RelativeDuration;
 pub use crate::interval::{Interval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval};
 pub use crate::recurrence::Recurrence;
