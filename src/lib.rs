@@ -22,7 +22,9 @@
 //!
 //! ## Serialization
 //!
-//! To serialize into an ISO8601-2:2019 format you can use the ISO8601 serde that we have provided
+//! There are two ways to seriaize a RelativeDuration. The first one serializes it as an object.
+//! and the second way is an ISO8601-2:2019 compatible serializer. Because the formwat is not
+//! widely used yet we do not set it as the default (de)serializer.
 //!
 //! ```
 //! use calends::RelativeDuration;
@@ -37,10 +39,13 @@
 //!    rd: RelativeDuration,
 //! }
 //!
-//! let rd = RelativeDuration::default().with_days(1).with_months(23);
+//! let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
 //! let s = S { rd };
 //!
-//! let parsed: S = serde_json::from_str(&serde_json::to_string(&s).unwrap()).unwrap();
+//! let rd_string = serde_json::to_string(&s).unwrap();
+//! assert_eq!(rd_string, r#"{"rd":"P23M-1W1D"}"#);
+//!
+//! let parsed: S = serde_json::from_str(&rd_string).unwrap();
 //! assert_eq!(rd, parsed.rd)
 //! ```
 //!
@@ -117,6 +122,7 @@ pub mod recurrence;
 pub mod unit;
 pub mod util;
 
+pub use crate::duration::serde::rd_iso8601;
 pub use crate::duration::RelativeDuration;
 pub use crate::interval::{Interval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval};
 pub use crate::recurrence::Recurrence;
