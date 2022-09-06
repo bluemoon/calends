@@ -27,6 +27,9 @@ assert_eq!(
 To serialize into an ISO8601-2:2019 format you can use the ISO8601 serde that we have provided
 
 ```rust
+use calends::RelativeDuration;
+use calends::rd_iso8601;
+
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct S {
    #[serde(
