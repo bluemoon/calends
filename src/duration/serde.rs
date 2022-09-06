@@ -16,7 +16,7 @@ impl Serialize for RelativeDuration {
     }
 }
 
-/// Used to serialize/deserialize from nanosecond-precision timestamps
+/// Used to serialize/deserialize from ISO8601-2:2019 Durations
 ///
 /// # Example:
 ///
