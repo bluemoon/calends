@@ -126,6 +126,7 @@
 //! ```
 //! use chrono::NaiveDate;
 //! use calends::{Interval, RelativeDuration};
+//! use calends::interval::marker::Start;
 //! use calends::int_iso8601;
 //!
 //! #[derive(Debug, serde::Deserialize, serde::Serialize)]
@@ -145,7 +146,7 @@
 //! assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
 //!
 //! let parsed: S = serde_json::from_str(&int_string).unwrap();
-//! assert_eq!(int, parsed.i)
+//! assert_eq!(parsed.i.start(), int.start())
 //! ```
 
 pub mod duration;

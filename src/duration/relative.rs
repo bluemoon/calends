@@ -411,7 +411,7 @@ mod tests {
 
     #[test]
     fn test_zero() {
-        assert_eq!(RelativeDuration::zero().is_zero(), true);
+        assert!(RelativeDuration::zero().is_zero());
     }
 
     #[test]
