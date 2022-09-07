@@ -85,9 +85,9 @@ pub mod int_iso8601 {
     /// # Example:
     ///
     /// ```rust
-    /// # use calends::duration::Interval;
+    /// # use calends::Interval;
     /// # use serde_derive::{Deserialize, Serialize};
-    /// use calends::duration::serde::int_iso8601::deserialize;
+    /// use calends::interval::serde::int_iso8601::deserialize;
     ///
     /// #[derive(Deserialize)]
     /// struct S {
