@@ -24,8 +24,9 @@ assert_eq!(
 
 ### Serialization
 
-There are two ways to seriaize a RelativeDuration. The first one serializes it as an object.
-and the second way is an ISO8601-2:2019 compatible serializer. Because the format is not
+There are two ways to serialize a RelativeDuration:
+- The first one serializes it as an object.
+- The second way is an ISO8601-2:2019 compatible serializer. Because the format is not
 widely used yet we do not set it as the default (de)serializer.
 
 ```rust
@@ -115,6 +116,39 @@ let duration = RelativeDuration::months(1).with_days(-2);
 let start = NaiveDate::from_ymd(2022, 1, 1);
 
 let mut interval = Interval::from_start(start, duration);
+```
+
+### Serialization
+
+There are two ways to serialize a Interval:
+- The first one serializes it as an object.
+- The second way is an ISO8601-2:2019 compatible serializer. Because the format is not
+widely used yet we do not set it as the default (de)serializer.
+
+```rust
+use chrono::NaiveDate;
+use calends::{Interval, RelativeDuration};
+use calends::interval::marker::Start;
+use calends::int_iso8601;
+
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+struct S {
+   #[serde(
+     deserialize_with = "int_iso8601::deserialize",
+     serialize_with = "int_iso8601::serialize"
+   )]
+   i: Interval,
+}
+
+let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
+let int = Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
+let s = S { i: int.clone() };
+
+let int_string = serde_json::to_string(&s).unwrap();
+assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
+
+let parsed: S = serde_json::from_str(&int_string).unwrap();
+assert_eq!(parsed.i.start(), int.start())
 ```
 
 License: MIT

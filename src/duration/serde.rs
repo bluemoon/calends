@@ -106,7 +106,7 @@ pub mod rd_iso8601 {
         where
             E: de::Error,
         {
-            parse_relative_duration(v)
+            parse_relative_duration(v.as_bytes())
                 .map(|(_, d)| d)
                 .map_err(E::custom)
         }

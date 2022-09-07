@@ -1,9 +1,6 @@
 use nom::{
-    bytes::complete::{tag, take_while},
-    character::{
-        complete::{char, one_of},
-        is_digit,
-    },
+    bytes::complete::tag,
+    character::complete::one_of,
     combinator::opt,
     error::Error,
     multi::count,
@@ -11,7 +8,7 @@ use nom::{
     Err, IResult,
 };
 
-use crate::RelativeDuration;
+use crate::{parser::take_signed_digits, RelativeDuration};
 
 #[derive(Debug, PartialEq)]
 pub enum Unit {
@@ -19,25 +16,6 @@ pub enum Unit {
     Months(i32),
     Weeks(i32),
     Days(i32),
-}
-
-fn take_signed_digits(i: &[u8]) -> IResult<&[u8], i32> {
-    let (i, negative) = opt(char('-'))(i)?;
-    let (i, digits) = take_while(is_digit)(i)?;
-
-    if digits.is_empty() {
-        return Err(Err::Error(Error::new(i, nom::error::ErrorKind::Eof)));
-    }
-
-    let s = std::str::from_utf8(digits).expect("Invalid data, expected UTF-8 string");
-    let res: i32 = s
-        .parse()
-        .expect("Invalid string, expected ASCII representation of a number");
-
-    match negative {
-        Some(_) => Ok((i, -res)),
-        None => Ok((i, res)),
-    }
 }
 
 fn parse_duration_chunk(input: &[u8]) -> IResult<&[u8], Unit> {
@@ -51,11 +29,11 @@ fn parse_duration_chunk(input: &[u8]) -> IResult<&[u8], Unit> {
     }
 }
 
-/// Parse a duration
+/// Parse an ISO8601-2:2019 duration
 ///
-pub fn parse_relative_duration(input: &str) -> IResult<&[u8], RelativeDuration> {
-    let (leftover, units) =
-        preceded(tag("P"), count(opt(parse_duration_chunk), 4))(input.as_bytes())?;
+/// Returns the leftovers for use in combination with other parsers
+pub fn parse_relative_duration(input: &[u8]) -> IResult<&[u8], RelativeDuration> {
+    let (leftover, units) = preceded(tag("P"), count(opt(parse_duration_chunk), 4))(input)?;
 
     let rd = units
         .iter()
@@ -100,7 +78,7 @@ mod tests {
 
     #[test]
     fn test_parse_duration() {
-        let (_input, duration) = parse_relative_duration("P3W2D").unwrap();
+        let (_input, duration) = parse_relative_duration("P3W2D".as_bytes()).unwrap();
         assert_eq!(
             duration,
             RelativeDuration::default().with_weeks(3).with_days(2)
