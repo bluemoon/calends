@@ -39,9 +39,9 @@ where
 /// }
 /// ```
 pub mod int_iso8601 {
-    use serde::ser;
+    use serde::{de, ser};
 
-    use crate::IntervalLike;
+    use crate::{interval::parse::parse_interval, Interval, IntervalLike};
 
     /// Serialize a relative duration into an iso8601 duration
     ///
@@ -76,5 +76,51 @@ pub mod int_iso8601 {
         I: IntervalLike,
     {
         serializer.serialize_str(&int.iso8601())
+    }
+
+    /// Deserialize a `Interval` from an ISO8601-2 interval
+    ///
+    /// Intended for use with `serde`s `deserialize_with` attribute.
+    ///
+    /// # Example:
+    ///
+    /// ```rust
+    /// # use calends::duration::Interval;
+    /// # use serde_derive::{Deserialize, Serialize};
+    /// use calends::duration::serde::int_iso8601::deserialize;
+    ///
+    /// #[derive(Deserialize)]
+    /// struct S {
+    ///     #[serde(deserialize_with = "deserialize")]
+    ///     i: Interval
+    /// }
+    ///
+    /// let my_s: S = serde_json::from_str(r#"{ "i": "2022-01-01/P3M-3D" }"#)?;
+    /// # Ok::<(), serde_json::Error>(())
+    /// ```
+    pub fn deserialize<'de, D>(d: D) -> Result<Interval, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        d.deserialize_string(IntervalVisitor)
+    }
+
+    pub struct IntervalVisitor;
+
+    impl<'de> de::Visitor<'de> for IntervalVisitor {
+        type Value = Interval;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a ISO8601-2:2019 duration")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: de::Error,
+        {
+            parse_interval(v.as_bytes())
+                .map(|(_, d)| d)
+                .map_err(E::custom)
+        }
     }
 }

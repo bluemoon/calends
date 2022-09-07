@@ -4,7 +4,7 @@
 use super::bound::{self, Bound};
 use chrono::NaiveDate;
 
-pub trait IntervalLike: Clone + PartialEq + Eq + serde::Serialize {
+pub trait IntervalLike: Clone + serde::Serialize {
     fn bound_start(&self) -> Bound<NaiveDate>;
     fn bound_end(&self) -> Bound<NaiveDate>;
 
@@ -55,7 +55,7 @@ pub trait IntervalLike: Clone + PartialEq + Eq + serde::Serialize {
             (Bound::Unbounded, Bound::Included(e)) => format!("../{}", e),
             // yeah don't unbound it on both sides because thats just weird
             // but we still represent it
-            (Bound::Unbounded, Bound::Unbounded) => format!("../.."),
+            (Bound::Unbounded, Bound::Unbounded) => "../..".to_string(),
         }
     }
 }
@@ -72,11 +72,11 @@ mod tests {
 
     impl IntervalLike for Int {
         fn bound_start(&self) -> Bound<NaiveDate> {
-            Bound::Included(self.start.clone())
+            Bound::Included(self.start)
         }
 
         fn bound_end(&self) -> Bound<NaiveDate> {
-            Bound::Included(self.end.clone())
+            Bound::Included(self.end)
         }
     }
 
@@ -87,8 +87,8 @@ mod tests {
             end: NaiveDate::from_ymd(2022, 12, 31),
         };
 
-        assert_eq!(i1.within(NaiveDate::from_ymd(2022, 5, 18)), true);
-        assert_eq!(i1.within(NaiveDate::from_ymd(2023, 5, 18)), false);
+        assert!(i1.within(NaiveDate::from_ymd(2022, 5, 18)));
+        assert!(!i1.within(NaiveDate::from_ymd(2023, 5, 18)));
     }
 
     #[test]

@@ -118,6 +118,7 @@
 pub mod duration;
 pub mod grain;
 pub mod interval;
+mod parser;
 pub mod recurrence;
 pub mod unit;
 pub mod util;
