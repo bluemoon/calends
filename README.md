@@ -128,6 +128,7 @@ widely used yet we do not set it as the default (de)serializer.
 ```rust
 use chrono::NaiveDate;
 use calends::{Interval, RelativeDuration};
+use calends::interval::marker::Start;
 use calends::int_iso8601;
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
@@ -147,7 +148,7 @@ let int_string = serde_json::to_string(&s).unwrap();
 assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
 
 let parsed: S = serde_json::from_str(&int_string).unwrap();
-assert_eq!(int, parsed.i)
+assert_eq!(parsed.i.start(), int.start())
 ```
 
 License: MIT
