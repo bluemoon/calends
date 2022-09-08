@@ -3,7 +3,7 @@
 //!
 //! # Durations of time
 //!
-//! A [RelativeDuration] is a unit of time that has some ability to be applied to a date to produce another
+//! A *RelativeDuration* is a unit of time that has some ability to be applied to a date to produce another
 //! date.
 //!
 //! ```
@@ -19,6 +19,10 @@
 //!     NaiveDate::from_ymd(2022, 1, 30)
 //! );
 //! ```
+//!
+//! When applying durations to dates, it will apply in order if the largest units first e.g.
+//! months will come before weeks. Therefore when you construct durations such as 1 month, -1 day
+//! it will then move forward 1 month and then go backwards one day.
 //!
 //! ## Serialization
 //!
