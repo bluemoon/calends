@@ -1,7 +1,10 @@
 ///! Interval
 ///!
 ///! Used to coalesce both recurring and non-recurring intervals into one interface.
-use super::bound::{self, Bound};
+use super::{
+    bound::{self, Bound},
+    marker::{End, Start},
+};
 use chrono::NaiveDate;
 
 pub trait IntervalLike {
@@ -59,6 +62,10 @@ pub trait IntervalLike {
         }
     }
 }
+
+pub trait IntervalLikeWithStart: IntervalLike + Start {}
+pub trait IntervalLikeWithEnd: IntervalLike + End {}
+pub trait IntervalLikeWithStartAndEnd: IntervalLike + Start + End {}
 
 #[cfg(test)]
 mod tests {
