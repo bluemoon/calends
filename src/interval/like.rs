@@ -4,7 +4,7 @@
 use super::bound::{self, Bound};
 use chrono::NaiveDate;
 
-pub trait IntervalLike: Clone + serde::Serialize {
+pub trait IntervalLike: Sized + Clone + serde::Serialize {
     fn bound_start(&self) -> Bound<NaiveDate>;
     fn bound_end(&self) -> Bound<NaiveDate>;
 
