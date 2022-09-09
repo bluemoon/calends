@@ -167,6 +167,7 @@ pub mod util;
 pub use crate::duration::serde::rd_iso8601;
 pub use crate::duration::RelativeDuration;
 pub use crate::interval::serde::int_iso8601;
+pub use crate::interval::Interval;
 pub use crate::interval::{
     BoundInterval, IntervalLike, UnboundedEndInterval, UnboundedStartInterval,
 };

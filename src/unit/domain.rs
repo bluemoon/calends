@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::{Interval, RelativeDuration};
+use crate::{BoundInterval, RelativeDuration};
 
 /// A unit in time
 ///
@@ -28,27 +28,28 @@ pub enum CalendarUnit {
 }
 
 impl CalendarUnit {
-    pub fn into_interval(&self) -> Interval {
+    pub fn into_interval(&self) -> BoundInterval {
         match self {
-            CalendarUnit::Year(year) => {
-                Interval::from_start(NaiveDate::from_yo(*year, 1), RelativeDuration::months(12))
-            }
-            CalendarUnit::Quarter(year, quarter) => Interval::from_start(
+            CalendarUnit::Year(year) => BoundInterval::from_start(
+                NaiveDate::from_yo(*year, 1),
+                RelativeDuration::months(12),
+            ),
+            CalendarUnit::Quarter(year, quarter) => BoundInterval::from_start(
                 NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
                 RelativeDuration::months(3),
             ),
 
-            CalendarUnit::Half(year, half) => Interval::from_start(
+            CalendarUnit::Half(year, half) => BoundInterval::from_start(
                 NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
                 RelativeDuration::months(6),
             ),
 
-            CalendarUnit::Month(year, month) => Interval::from_start(
+            CalendarUnit::Month(year, month) => BoundInterval::from_start(
                 NaiveDate::from_ymd(*year, (*month).try_into().unwrap(), 1),
                 RelativeDuration::months(1),
             ),
 
-            CalendarUnit::Week(year, week) => Interval::from_start(
+            CalendarUnit::Week(year, week) => BoundInterval::from_start(
                 NaiveDate::from_isoywd(*year, (*week).into(), chrono::Weekday::Mon),
                 RelativeDuration::days(7),
             ),

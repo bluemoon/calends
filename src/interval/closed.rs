@@ -7,28 +7,6 @@ use serde::{Serialize, Serializer};
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
 ///
-/// ## Interval creation rules
-///
-/// These rules have been adapted from ISO 8601-2:2019 7.14 Time Intervals.
-///
-/// - **Start and end:** A given start and end, we will calculate a duration based on the difference of
-/// these two time sets and assign that as the duration. This may not produce the correct results
-/// in the case of months.
-///
-/// - **Start and duration:** The start time plus the duration creates the end of the interval.
-/// Intervals are then iterated on with the given duration. e.g. if the duration is 1 month, then
-/// the next call to the iterator would give you a month in the future.
-/// - **End and duration:** The end time minus the duration creates the beginning of the interval.
-/// Intervals are then iterated on with the given duration.
-///
-/// ## Other notes
-///
-/// - This interval is by default inclusive on both ends.
-///
-/// # Rationale
-///
-/// We use this over [std::ops::Bound] because bound supports exclusive boundaries and we have made the
-/// decision that it adds too much cognitive load / API cruft so we do not include it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BoundInterval {
     /// Indicating up to OR on in the direction of the interval

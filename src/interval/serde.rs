@@ -41,7 +41,7 @@ where
 pub mod int_iso8601 {
     use serde::{de, ser};
 
-    use crate::{interval::parse::parse_interval, Interval, IntervalLike};
+    use crate::{interval::parse::parse_interval, BoundInterval, IntervalLike};
 
     /// Serialize a relative duration into an iso8601 duration
     ///
@@ -98,7 +98,7 @@ pub mod int_iso8601 {
     /// let my_s: S = serde_json::from_str(r#"{ "i": "2022-01-01/P3M-3D" }"#)?;
     /// # Ok::<(), serde_json::Error>(())
     /// ```
-    pub fn deserialize<'de, D>(d: D) -> Result<Interval, D::Error>
+    pub fn deserialize<'de, D>(d: D) -> Result<BoundInterval, D::Error>
     where
         D: de::Deserializer<'de>,
     {
@@ -108,7 +108,7 @@ pub mod int_iso8601 {
     pub struct IntervalVisitor;
 
     impl<'de> de::Visitor<'de> for IntervalVisitor {
-        type Value = Interval;
+        type Value = BoundInterval;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
             formatter.write_str("a ISO8601-2:2019 duration")
