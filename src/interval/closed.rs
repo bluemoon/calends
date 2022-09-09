@@ -30,7 +30,7 @@ use serde::{Serialize, Serializer};
 /// We use this over [std::ops::Bound] because bound supports exclusive boundaries and we have made the
 /// decision that it adds too much cognitive load / API cruft so we do not include it.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Interval {
+pub struct BoundInterval {
     /// Indicating up to OR on in the direction of the interval
     ///
     /// e.g. if the direction is "forwards" and the end is inclusive then it will include the
@@ -39,7 +39,7 @@ pub struct Interval {
     duration: RelativeDuration,
 }
 
-impl Interval {
+impl BoundInterval {
     /// Create an interval from a start and a duration
     ///
     /// # Example
@@ -58,7 +58,7 @@ impl Interval {
     /// assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
     /// ```
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
-        Interval { date, duration }
+        BoundInterval { date, duration }
     }
 
     /// Create an interval from an end and a duration
@@ -79,7 +79,7 @@ impl Interval {
     /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
     /// ```
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
-        Interval {
+        BoundInterval {
             date: end + -duration,
             duration,
         }
@@ -87,7 +87,7 @@ impl Interval {
 
     /// Create an interval with a specified set of dates
     pub fn with_dates(start: NaiveDate, end: NaiveDate) -> Self {
-        Interval {
+        BoundInterval {
             date: start,
             duration: RelativeDuration::from_duration_between(start, end),
         }
@@ -103,12 +103,12 @@ impl Interval {
         (self.date + self.duration).pred()
     }
 
-    pub fn until_after(self, until: NaiveDate) -> UntilAfter<Interval> {
+    pub fn until_after(self, until: NaiveDate) -> UntilAfter<BoundInterval> {
         UntilAfter::new(self, until)
     }
 }
 
-impl IntervalLike for Interval {
+impl IntervalLike for BoundInterval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.computed_start_date())
     }
@@ -118,10 +118,10 @@ impl IntervalLike for Interval {
     }
 }
 
-impl marker::Start for Interval {}
-impl marker::End for Interval {}
+impl marker::Start for BoundInterval {}
+impl marker::End for BoundInterval {}
 
-impl Serialize for Interval {
+impl Serialize for BoundInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -130,11 +130,11 @@ impl Serialize for Interval {
     }
 }
 
-impl Iterator for Interval {
-    type Item = Interval;
+impl Iterator for BoundInterval {
+    type Item = BoundInterval;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let interval = Interval::from_start(self.date, self.duration);
+        let interval = BoundInterval::from_start(self.date, self.duration);
         // to prevent overlapping dates we add one day
         self.date = self.date + self.duration;
         Some(interval)
@@ -150,7 +150,7 @@ mod tests {
     #[test]
     fn test_from_start() {
         let mut iter =
-            Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), RelativeDuration::months(1))
+            BoundInterval::from_start(NaiveDate::from_ymd(2022, 1, 1), RelativeDuration::months(1))
                 .until_after(NaiveDate::from_ymd(2023, 1, 1));
 
         let next = iter.next().unwrap();
@@ -167,7 +167,7 @@ mod tests {
 
     #[test]
     fn test_from_end() {
-        let interval = Interval::from_end(
+        let interval = BoundInterval::from_end(
             NaiveDate::from_ymd(2022, 1, 1),
             RelativeDuration::months(1).with_weeks(-2).with_days(2),
         );
