@@ -80,6 +80,8 @@
 //! - An unbounded start interval does not have a start and only has an end.
 //! - An unbounded end interval does not have an end but has a start.
 //!
+//! ## Closed interval
+//!
 //! ```
 //! use calends::{Interval, IntervalLike, RelativeDuration};
 //! use calends::interval::marker::{End, Start};

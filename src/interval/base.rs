@@ -1,4 +1,6 @@
-use crate::IntervalLike;
+use chrono::NaiveDate;
+
+use crate::{IntervalLike, RelativeDuration};
 
 use super::closed::BoundInterval;
 use super::marker;
@@ -9,6 +11,20 @@ pub enum Interval {
     Closed(BoundInterval),
     UnboundedStart(UnboundedStartInterval),
     UnboundedEnd(UnboundedEndInterval),
+}
+
+impl Interval {
+    pub fn closed_from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
+        Interval::Closed(BoundInterval::from_start(date, duration))
+    }
+
+    pub fn closed_from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
+        Interval::Closed(BoundInterval::from_end(end, duration))
+    }
+
+    pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
+        Interval::Closed(BoundInterval::with_dates(start, end))
+    }
 }
 
 impl IntervalLike for Interval {

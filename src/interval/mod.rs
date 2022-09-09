@@ -8,6 +8,7 @@ pub mod open;
 mod parse;
 pub mod serde;
 
+pub use base::{Interval, IntervalWithEnd, IntervalWithStart};
 pub use closed::BoundInterval;
 pub use like::IntervalLike;
 pub use open::{UnboundedEndInterval, UnboundedStartInterval};

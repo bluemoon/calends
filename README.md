@@ -75,11 +75,14 @@ assert_eq!(recur.next(), None);
 
 ## Intervals
 
-An interval is a span of time that can be bound or unbound. This means that you
-can iterate until the beginning/end of the time. However in practice this will be limited by
-chronos types.
+An interval is a span of time that can be bound or unbound. There are three important cases to
+consider: closed, unbounded start, and unbounded end.
 
-This will likely be used to do things like iterate by week, month, quarter, or year.
+- A closed interval has start and an end and can be repeated.
+- An unbounded start interval does not have a start and only has an end.
+- An unbounded end interval does not have an end but has a start.
+
+### Closed interval
 
 ```rust
 use calends::{Interval, IntervalLike, RelativeDuration};
