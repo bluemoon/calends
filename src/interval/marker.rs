@@ -16,7 +16,10 @@ pub trait End: IntervalLike {
 
 #[cfg(test)]
 mod tests {
-    use crate::{interval::marker, BoundInterval, RelativeDuration, UnboundedStartInterval};
+    use crate::{
+        interval::{marker, BoundInterval, UnboundedStartInterval},
+        RelativeDuration,
+    };
 
     use super::*;
 

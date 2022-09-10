@@ -1,8 +1,6 @@
 use chrono::NaiveDate;
 
-use crate::BoundInterval;
-
-use super::marker::End;
+use super::{marker::End, BoundInterval};
 
 #[derive(Debug, Clone)]
 pub struct UntilAfter<T>

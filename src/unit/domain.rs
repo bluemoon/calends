@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::{BoundInterval, RelativeDuration};
+use crate::{interval::BoundInterval, RelativeDuration};
 
 /// A unit in time
 ///

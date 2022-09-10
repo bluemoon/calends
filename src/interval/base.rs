@@ -35,7 +35,8 @@ use super::open::{UnboundedEndInterval, UnboundedStartInterval};
 /// We use this over [std::ops::Bound] because bound supports exclusive boundaries and we have made the
 /// decision that it adds too much cognitive load / API cruft so we do not include it.
 ///
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "type")]
 pub enum Interval {
     Closed(BoundInterval),
     OpenStart(UnboundedStartInterval),

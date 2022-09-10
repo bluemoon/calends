@@ -1,7 +1,14 @@
 use chrono::NaiveDate;
-use nom::{branch::alt, bytes::complete::tag, IResult};
+use nom::{
+    branch::alt,
+    bytes::complete::tag,
+    sequence::{preceded, terminated},
+    IResult,
+};
 
-use crate::{duration::parse::parse_relative_duration, parser::take_n_digits, BoundInterval};
+use crate::{duration::parse::parse_relative_duration, parser::take_n_digits};
+
+use super::{BoundInterval, UnboundedEndInterval, UnboundedStartInterval};
 
 pub fn parse_date(i: &[u8]) -> IResult<&[u8], NaiveDate> {
     let (i, year) = take_n_digits(i, 4)?;
@@ -31,4 +38,14 @@ fn parse_start_and_end(i: &[u8]) -> IResult<&[u8], BoundInterval> {
 
 pub fn parse_interval(i: &[u8]) -> IResult<&[u8], BoundInterval> {
     alt((parse_start_and_end, parse_start_and_duration))(i)
+}
+
+pub fn parse_open_start_interval(i: &[u8]) -> IResult<&[u8], UnboundedStartInterval> {
+    let (i, date) = preceded(tag("../"), parse_date)(i)?;
+    Ok((i, UnboundedStartInterval::new(date)))
+}
+
+pub fn parse_open_end_interval(i: &[u8]) -> IResult<&[u8], UnboundedEndInterval> {
+    let (i, date) = terminated(parse_date, tag("../"))(i)?;
+    Ok((i, UnboundedEndInterval::new(date)))
 }

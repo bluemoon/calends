@@ -41,7 +41,10 @@ where
 pub mod int_iso8601 {
     use serde::{de, ser};
 
-    use crate::{interval::parse::parse_interval, BoundInterval, IntervalLike};
+    use crate::{
+        interval::{parse::parse_interval, BoundInterval},
+        IntervalLike,
+    };
 
     /// Serialize a relative duration into an iso8601 duration
     ///

@@ -1,8 +1,8 @@
 use crate::{duration::RelativeDuration, IntervalLike};
 
-use super::{bound::Bound, iter::UntilAfter, marker, serde::SerializeInterval};
+use super::{bound::Bound, iter::UntilAfter, marker, parse::parse_interval};
 use chrono::NaiveDate;
-use serde::{Serialize, Serializer};
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
@@ -99,12 +99,41 @@ impl IntervalLike for BoundInterval {
 impl marker::Start for BoundInterval {}
 impl marker::End for BoundInterval {}
 
+/// Serialize a `Interval` as a ISO8601-2:2019 compatible format
 impl Serialize for BoundInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        SerializeInterval(self.clone()).serialize(serializer)
+        serializer.serialize_str(&self.iso8601())
+    }
+}
+
+pub struct IntervalVisitor;
+
+impl<'de> de::Visitor<'de> for IntervalVisitor {
+    type Value = BoundInterval;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+        formatter.write_str("a ISO8601-2:2019 duration")
+    }
+
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+    where
+        E: de::Error,
+    {
+        parse_interval(v.as_bytes())
+            .map(|(_, d)| d)
+            .map_err(E::custom)
+    }
+}
+
+impl<'de> Deserialize<'de> for BoundInterval {
+    fn deserialize<D>(deserializer: D) -> Result<BoundInterval, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_i32(IntervalVisitor)
     }
 }
 
