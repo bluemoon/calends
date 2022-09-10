@@ -36,7 +36,7 @@ use super::open::{UnboundedEndInterval, UnboundedStartInterval};
 /// decision that it adds too much cognitive load / API cruft so we do not include it.
 ///
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "type")]
+#[serde(untagged)]
 pub enum Interval {
     /// A closed interval that will always have a start and end
     Closed(BoundInterval),

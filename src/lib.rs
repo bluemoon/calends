@@ -106,7 +106,6 @@
 //! use chrono::NaiveDate;
 //! use calends::{Interval, RelativeDuration, IntervalLike};
 //! use calends::interval::marker::Start;
-//! use calends::int_iso8601;
 //!
 //! #[derive(Debug, serde::Deserialize, serde::Serialize)]
 //! struct S {
