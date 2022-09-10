@@ -38,20 +38,72 @@ use super::open::{UnboundedEndInterval, UnboundedStartInterval};
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "type")]
 pub enum Interval {
+    /// A closed interval that will always have a start and end
     Closed(BoundInterval),
     OpenStart(UnboundedStartInterval),
     OpenEnd(UnboundedEndInterval),
 }
 
 impl Interval {
+    /// Create an interval from a start and a duration
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
+    ///
+    /// let start = NaiveDate::from_ymd(2022, 1, 1);
+    /// let duration = RelativeDuration::months(1);
+    ///
+    /// let mut interval = Interval::closed_from_start(start, duration);
+    ///
+    /// assert_eq!(interval.start_opt().unwrap(), start);
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 31));
+    /// ```
     pub fn closed_from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(BoundInterval::from_start(date, duration))
     }
 
+    /// Create an interval from an end and a duration
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
+    ///
+    /// let interval = Interval::closed_from_end(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
+    /// );
+    ///
+    /// assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
+    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
+    /// ```
     pub fn closed_from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(BoundInterval::from_end(end, duration))
     }
 
+    /// Create an interval from an end and a duration
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
+    ///
+    /// let interval = Interval::closed_with_dates(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     NaiveDate::from_ymd(2023, 1, 1),
+    /// );
+    ///
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+    /// ```
     pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         Interval::Closed(BoundInterval::with_dates(start, end))
     }

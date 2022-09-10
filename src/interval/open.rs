@@ -7,7 +7,6 @@ use super::{
     bound::Bound,
     marker,
     parse::{parse_open_end_interval, parse_open_start_interval},
-    serde::SerializeInterval,
 };
 
 /// Indicating that the preceeding direction is unbounded, this is the time leading up to the
@@ -40,7 +39,7 @@ impl Serialize for UnboundedStartInterval {
     where
         S: Serializer,
     {
-        SerializeInterval(self.clone()).serialize(serializer)
+        serializer.serialize_str(&self.iso8601())
     }
 }
 
@@ -102,7 +101,7 @@ impl Serialize for UnboundedEndInterval {
     where
         S: Serializer,
     {
-        SerializeInterval(self.clone()).serialize(serializer)
+        serializer.serialize_str(&self.iso8601())
     }
 }
 

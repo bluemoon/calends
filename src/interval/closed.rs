@@ -19,43 +19,11 @@ pub struct BoundInterval {
 
 impl BoundInterval {
     /// Create an interval from a start and a duration
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::NaiveDate;
-    /// use calends::{Interval, IntervalLike, RelativeDuration};
-    /// use calends::interval::marker::{End, Start};
-    ///
-    /// let start = NaiveDate::from_ymd(2022, 1, 1);
-    /// let duration = RelativeDuration::months(1);
-    ///
-    /// let mut interval = Interval::from_start(start, duration);
-    ///
-    /// assert_eq!(interval.start(), start);
-    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
-    /// ```
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         BoundInterval { date, duration }
     }
 
     /// Create an interval from an end and a duration
-    ///
-    /// # Example
-    ///
-    /// ```
-    /// use chrono::NaiveDate;
-    /// use calends::{Interval, IntervalLike, RelativeDuration};
-    /// use calends::interval::marker::{End, Start};
-    ///
-    /// let interval = Interval::from_end(
-    ///     NaiveDate::from_ymd(2022, 1, 1),
-    ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
-    /// );
-    ///
-    /// assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
-    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
-    /// ```
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         BoundInterval {
             date: end + -duration,

@@ -6,7 +6,6 @@ pub mod like;
 pub mod marker;
 pub mod open;
 mod parse;
-pub mod serde;
 
 pub use base::{Interval, IntervalWithEnd, IntervalWithStart};
 pub use closed::BoundInterval;

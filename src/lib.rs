@@ -82,34 +82,6 @@
 //!
 //! ## Closed interval
 //!
-//! ```
-//! use calends::{Interval, IntervalLike, RelativeDuration};
-//! use calends::interval::marker::{End, Start};
-//! use chrono::NaiveDate;
-//!
-//! let start = NaiveDate::from_ymd(2022, 1, 1);
-//! let duration = RelativeDuration::months(1);
-//!
-//! let mut interval = Interval::from_start(start, duration);
-//!
-//! assert_eq!(interval.start(), start);
-//! assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
-//!
-//! // Intervals are also iterable because they always have a duration!
-//! // they are inclusive so they return the current time span first
-//!
-//! let next = interval.next().unwrap();
-//!
-//! assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
-//! assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 31));
-//!
-//! let next = interval.next().unwrap();
-//!
-//! assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 1));
-//! assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 28));
-//!
-//! ```
-//!
 //! In combination with RelativeDuration you can do things such as iterate the second to last day
 //! of the month.
 //!
@@ -120,7 +92,7 @@
 //! let duration = RelativeDuration::months(1).with_days(-2);
 //! let start = NaiveDate::from_ymd(2022, 1, 1);
 //!
-//! let mut interval = Interval::from_start(start, duration);
+//! let mut interval = Interval::closed_from_start(start, duration);
 //! ```
 //!
 //! ## Serialization
@@ -132,28 +104,24 @@
 //!
 //! ```
 //! use chrono::NaiveDate;
-//! use calends::{Interval, RelativeDuration};
+//! use calends::{Interval, RelativeDuration, IntervalLike};
 //! use calends::interval::marker::Start;
 //! use calends::int_iso8601;
 //!
 //! #[derive(Debug, serde::Deserialize, serde::Serialize)]
 //! struct S {
-//!    #[serde(
-//!      deserialize_with = "int_iso8601::deserialize",
-//!      serialize_with = "int_iso8601::serialize"
-//!    )]
 //!    i: Interval,
 //! }
 //!
 //! let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
-//! let int = Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
+//! let int = Interval::closed_from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
 //! let s = S { i: int.clone() };
 //!
 //! let int_string = serde_json::to_string(&s).unwrap();
 //! assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
 //!
 //! let parsed: S = serde_json::from_str(&int_string).unwrap();
-//! assert_eq!(parsed.i.start(), int.start())
+//! assert_eq!(parsed.i.start_opt().unwrap(), int.start_opt().unwrap())
 //! ```
 
 pub mod duration;
@@ -166,7 +134,6 @@ pub mod util;
 
 pub use crate::duration::serde::rd_iso8601;
 pub use crate::duration::RelativeDuration;
-pub use crate::interval::serde::int_iso8601;
 pub use crate::interval::Interval;
 pub use crate::recurrence::Rule;
 pub use crate::unit::CalendarUnit;

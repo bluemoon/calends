@@ -1,6 +1,6 @@
 [package]
 name = "calends"
-version = "0.1.12"
+version = "0.2.0"
 authors = ["Bradford Toney <bradford.toney@gmail.com>"]
 edition = "2021"
 publish = true 
