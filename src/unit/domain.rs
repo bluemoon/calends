@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::{interval::ClosedInterval, RelativeDuration};
+use crate::{interval::ClosedInterval, Interval, RelativeDuration};
 
 /// A unit in time
 ///
@@ -28,8 +28,8 @@ pub enum CalendarUnit {
 }
 
 impl CalendarUnit {
-    pub fn into_interval(&self) -> ClosedInterval {
-        match self {
+    pub fn into_interval(&self) -> Interval {
+        let res = match self {
             CalendarUnit::Year(year) => ClosedInterval::from_start(
                 NaiveDate::from_yo(*year, 1),
                 RelativeDuration::months(12),
@@ -53,7 +53,9 @@ impl CalendarUnit {
                 NaiveDate::from_isoywd(*year, (*week).into(), chrono::Weekday::Mon),
                 RelativeDuration::days(7),
             ),
-        }
+        };
+
+        Interval::Closed(res)
     }
 
     pub fn succ(&self) -> CalendarUnit {
@@ -89,25 +91,43 @@ impl Display for CalendarUnit {
 
 #[cfg(test)]
 mod tests {
-    use crate::interval::marker::{End, Start};
+    use crate::IntervalLike;
 
     use super::*;
 
     #[test]
     fn test_quarter_interval() {
         let interval = CalendarUnit::Quarter(2022, 1).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 3, 31));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 1, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 3, 31)
+        );
 
         let interval = CalendarUnit::Quarter(2022, 2).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 4, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 6, 30));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 4, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 6, 30)
+        );
     }
 
     #[test]
     fn test_half_interval() {
         let interval = CalendarUnit::Half(2022, 2).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 7, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 12, 31));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 7, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 12, 31)
+        );
     }
 }
