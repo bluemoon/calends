@@ -1,4 +1,4 @@
-use core::fmt;
+use std::convert::TryFrom;
 
 use chrono::NaiveDate;
 
@@ -10,14 +10,16 @@ use super::iter::UntilAfter;
 use super::marker;
 use super::open::{UnboundedEndInterval, UnboundedStartInterval};
 
+#[derive(Debug, thiserror::Error)]
 pub enum IntervalError {
+    #[error("the variant is not iterable")]
     NotIterable,
-}
 
-impl fmt::Display for IntervalError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        todo!()
-    }
+    #[error("is not convertible to with start")]
+    NotConvertibleToWithStart,
+
+    #[error("is not convertible to with end")]
+    NotConvertibleToWithEnd,
 }
 
 /// Inerval with three variants, closed, open start, open end
@@ -159,47 +161,71 @@ impl IntervalLike for Interval {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntervalWithStart {
     Closed(BoundInterval),
-    UnboundedEnd(UnboundedEndInterval),
+    OpenEnd(UnboundedEndInterval),
 }
 
 impl IntervalLike for IntervalWithStart {
     fn bound_start(&self) -> Bound<chrono::NaiveDate> {
         match self {
             IntervalWithStart::Closed(c) => c.bound_start(),
-            IntervalWithStart::UnboundedEnd(ue) => ue.bound_start(),
+            IntervalWithStart::OpenEnd(ue) => ue.bound_start(),
         }
     }
 
     fn bound_end(&self) -> Bound<chrono::NaiveDate> {
         match self {
             IntervalWithStart::Closed(c) => c.bound_end(),
-            IntervalWithStart::UnboundedEnd(ue) => ue.bound_end(),
+            IntervalWithStart::OpenEnd(ue) => ue.bound_end(),
         }
     }
 }
 
 impl marker::Start for IntervalWithStart {}
 
+impl TryFrom<Interval> for IntervalWithStart {
+    type Error = IntervalError;
+
+    fn try_from(value: Interval) -> Result<Self, Self::Error> {
+        match value {
+            Interval::Closed(i) => Ok(IntervalWithStart::Closed(i)),
+            Interval::OpenStart(_) => Err(IntervalError::NotConvertibleToWithStart),
+            Interval::OpenEnd(i) => Ok(IntervalWithStart::OpenEnd(i)),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntervalWithEnd {
     Closed(BoundInterval),
-    UnboundedStart(UnboundedEndInterval),
+    OpenStart(UnboundedStartInterval),
 }
 
 impl IntervalLike for IntervalWithEnd {
     fn bound_start(&self) -> Bound<chrono::NaiveDate> {
         match self {
             IntervalWithEnd::Closed(c) => c.bound_start(),
-            IntervalWithEnd::UnboundedStart(u) => u.bound_start(),
+            IntervalWithEnd::OpenStart(u) => u.bound_start(),
         }
     }
 
     fn bound_end(&self) -> Bound<chrono::NaiveDate> {
         match self {
             IntervalWithEnd::Closed(c) => c.bound_end(),
-            IntervalWithEnd::UnboundedStart(u) => u.bound_end(),
+            IntervalWithEnd::OpenStart(u) => u.bound_end(),
         }
     }
 }
 
 impl marker::End for IntervalWithEnd {}
+
+impl TryFrom<Interval> for IntervalWithEnd {
+    type Error = IntervalError;
+
+    fn try_from(value: Interval) -> Result<Self, Self::Error> {
+        match value {
+            Interval::Closed(i) => Ok(IntervalWithEnd::Closed(i)),
+            Interval::OpenEnd(_) => Err(IntervalError::NotConvertibleToWithEnd),
+            Interval::OpenStart(i) => Ok(IntervalWithEnd::OpenStart(i)),
+        }
+    }
+}
