@@ -80,8 +80,8 @@ impl Interval {
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
     /// );
     ///
-    /// assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
-    /// assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2021, 12, 13));
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2021, 12, 31));
     /// ```
     pub fn closed_from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(BoundInterval::from_end(end, duration))

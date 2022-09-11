@@ -3,6 +3,7 @@ use crate::{duration::RelativeDuration, IntervalLike};
 use super::{bound::Bound, iter::UntilAfter, marker, parse::parse_interval};
 use chrono::NaiveDate;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use tap::TapFallible;
 
 /// An interval that is constructed off of the idea of the standard calendar (Gregorian Proleptic
 /// calendar).
@@ -91,8 +92,10 @@ impl<'de> de::Visitor<'de> for IntervalVisitor {
     where
         E: de::Error,
     {
+        println!("here");
         parse_interval(v.as_bytes())
             .map(|(_, d)| d)
+            .tap_err(|e| println!("{:?}", e))
             .map_err(E::custom)
     }
 }
@@ -102,7 +105,7 @@ impl<'de> Deserialize<'de> for BoundInterval {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_i32(IntervalVisitor)
+        deserializer.deserialize_string(IntervalVisitor)
     }
 }
 

@@ -67,7 +67,7 @@ impl<'de> Deserialize<'de> for UnboundedStartInterval {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_i32(IntervalVisitor)
+        deserializer.deserialize_str(IntervalVisitor)
     }
 }
 
