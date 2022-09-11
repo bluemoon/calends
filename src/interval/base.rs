@@ -1,11 +1,24 @@
+use core::fmt;
+
 use chrono::NaiveDate;
 
 use crate::{IntervalLike, RelativeDuration};
 
 use super::bound::Bound;
 use super::closed::BoundInterval;
+use super::iter::UntilAfter;
 use super::marker;
 use super::open::{UnboundedEndInterval, UnboundedStartInterval};
+
+pub enum IntervalError {
+    NotIterable,
+}
+
+impl fmt::Display for IntervalError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        todo!()
+    }
+}
 
 /// Inerval with three variants, closed, open start, open end
 ///
@@ -114,6 +127,14 @@ impl Interval {
 
     pub fn open_end(start: NaiveDate) -> Self {
         Interval::OpenEnd(UnboundedEndInterval::new(start))
+    }
+
+    pub fn until_after(self, until: NaiveDate) -> Result<UntilAfter<BoundInterval>, IntervalError> {
+        match self {
+            Interval::Closed(closed) => Ok(UntilAfter::new(closed, until)),
+            Interval::OpenStart(_) => Err(IntervalError::NotIterable),
+            Interval::OpenEnd(_) => Err(IntervalError::NotIterable),
+        }
     }
 }
 
