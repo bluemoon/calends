@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::{interval::BoundInterval, RelativeDuration};
+use crate::{interval::ClosedInterval, RelativeDuration};
 
 /// A unit in time
 ///
@@ -28,28 +28,28 @@ pub enum CalendarUnit {
 }
 
 impl CalendarUnit {
-    pub fn into_interval(&self) -> BoundInterval {
+    pub fn into_interval(&self) -> ClosedInterval {
         match self {
-            CalendarUnit::Year(year) => BoundInterval::from_start(
+            CalendarUnit::Year(year) => ClosedInterval::from_start(
                 NaiveDate::from_yo(*year, 1),
                 RelativeDuration::months(12),
             ),
-            CalendarUnit::Quarter(year, quarter) => BoundInterval::from_start(
+            CalendarUnit::Quarter(year, quarter) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
                 RelativeDuration::months(3),
             ),
 
-            CalendarUnit::Half(year, half) => BoundInterval::from_start(
+            CalendarUnit::Half(year, half) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
                 RelativeDuration::months(6),
             ),
 
-            CalendarUnit::Month(year, month) => BoundInterval::from_start(
+            CalendarUnit::Month(year, month) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*month).try_into().unwrap(), 1),
                 RelativeDuration::months(1),
             ),
 
-            CalendarUnit::Week(year, week) => BoundInterval::from_start(
+            CalendarUnit::Week(year, week) => ClosedInterval::from_start(
                 NaiveDate::from_isoywd(*year, (*week).into(), chrono::Weekday::Mon),
                 RelativeDuration::days(7),
             ),
@@ -64,7 +64,7 @@ impl CalendarUnit {
                 let mut year = *year;
                 if quarter == 4 {
                     quarter = 1;
-                    year = year + 1;
+                    year += 1;
                 }
                 CalendarUnit::Quarter(year, quarter)
             }

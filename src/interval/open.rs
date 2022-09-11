@@ -12,17 +12,17 @@ use super::{
 /// Indicating that the preceeding direction is unbounded, this is the time leading up to the
 /// current time.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct UnboundedStartInterval {
+pub struct OpenStartInterval {
     end: NaiveDate,
 }
 
-impl UnboundedStartInterval {
+impl OpenStartInterval {
     pub fn new(end: NaiveDate) -> Self {
         Self { end }
     }
 }
 
-impl IntervalLike for UnboundedStartInterval {
+impl IntervalLike for OpenStartInterval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Unbounded
     }
@@ -32,9 +32,9 @@ impl IntervalLike for UnboundedStartInterval {
     }
 }
 
-impl marker::End for UnboundedStartInterval {}
+impl marker::End for OpenStartInterval {}
 
-impl Serialize for UnboundedStartInterval {
+impl Serialize for OpenStartInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -46,7 +46,7 @@ impl Serialize for UnboundedStartInterval {
 pub struct IntervalVisitor;
 
 impl<'de> de::Visitor<'de> for IntervalVisitor {
-    type Value = UnboundedStartInterval;
+    type Value = OpenStartInterval;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter.write_str("a ISO8601-2:2019 duration")
@@ -62,8 +62,8 @@ impl<'de> de::Visitor<'de> for IntervalVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for UnboundedStartInterval {
-    fn deserialize<D>(deserializer: D) -> Result<UnboundedStartInterval, D::Error>
+impl<'de> Deserialize<'de> for OpenStartInterval {
+    fn deserialize<D>(deserializer: D) -> Result<OpenStartInterval, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -74,17 +74,17 @@ impl<'de> Deserialize<'de> for UnboundedStartInterval {
 /// Indicating that the following direction is unbounded, this is the time after the
 /// current time.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct UnboundedEndInterval {
+pub struct OpenEndInterval {
     start: NaiveDate,
 }
 
-impl UnboundedEndInterval {
+impl OpenEndInterval {
     pub fn new(start: NaiveDate) -> Self {
         Self { start }
     }
 }
 
-impl IntervalLike for UnboundedEndInterval {
+impl IntervalLike for OpenEndInterval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.start)
     }
@@ -94,9 +94,9 @@ impl IntervalLike for UnboundedEndInterval {
     }
 }
 
-impl marker::Start for UnboundedEndInterval {}
+impl marker::Start for OpenEndInterval {}
 
-impl Serialize for UnboundedEndInterval {
+impl Serialize for OpenEndInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -108,7 +108,7 @@ impl Serialize for UnboundedEndInterval {
 pub struct UnboundedEndVisitor;
 
 impl<'de> de::Visitor<'de> for UnboundedEndVisitor {
-    type Value = UnboundedEndInterval;
+    type Value = OpenEndInterval;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter.write_str("a ISO8601-2:2019 duration")
@@ -124,11 +124,11 @@ impl<'de> de::Visitor<'de> for UnboundedEndVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for UnboundedEndInterval {
-    fn deserialize<D>(deserializer: D) -> Result<UnboundedEndInterval, D::Error>
+impl<'de> Deserialize<'de> for OpenEndInterval {
+    fn deserialize<D>(deserializer: D) -> Result<OpenEndInterval, D::Error>
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_i32(UnboundedEndVisitor)
+        deserializer.deserialize_str(UnboundedEndVisitor)
     }
 }

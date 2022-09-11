@@ -8,7 +8,7 @@ use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 /// calendar).
 ///
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct BoundInterval {
+pub struct ClosedInterval {
     /// Indicating up to OR on in the direction of the interval
     ///
     /// e.g. if the direction is "forwards" and the end is inclusive then it will include the
@@ -17,15 +17,15 @@ pub struct BoundInterval {
     pub(crate) duration: RelativeDuration,
 }
 
-impl BoundInterval {
+impl ClosedInterval {
     /// Create an interval from a start and a duration
     pub fn from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
-        BoundInterval { date, duration }
+        ClosedInterval { date, duration }
     }
 
     /// Create an interval from an end and a duration
     pub fn from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
-        BoundInterval {
+        ClosedInterval {
             date: end + -duration,
             duration,
         }
@@ -33,7 +33,7 @@ impl BoundInterval {
 
     /// Create an interval with a specified set of dates
     pub fn with_dates(start: NaiveDate, end: NaiveDate) -> Self {
-        BoundInterval {
+        ClosedInterval {
             date: start,
             duration: RelativeDuration::from_duration_between(start, end)
                 + RelativeDuration::days(1),
@@ -50,12 +50,12 @@ impl BoundInterval {
         (self.date + self.duration).pred()
     }
 
-    pub fn until_after(self, until: NaiveDate) -> UntilAfter<BoundInterval> {
+    pub fn until_after(self, until: NaiveDate) -> UntilAfter<ClosedInterval> {
         UntilAfter::new(self, until)
     }
 }
 
-impl IntervalLike for BoundInterval {
+impl IntervalLike for ClosedInterval {
     fn bound_start(&self) -> Bound<NaiveDate> {
         Bound::Included(self.computed_start_date())
     }
@@ -65,11 +65,11 @@ impl IntervalLike for BoundInterval {
     }
 }
 
-impl marker::Start for BoundInterval {}
-impl marker::End for BoundInterval {}
+impl marker::Start for ClosedInterval {}
+impl marker::End for ClosedInterval {}
 
 /// Serialize a `Interval` as a ISO8601-2:2019 compatible format
-impl Serialize for BoundInterval {
+impl Serialize for ClosedInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -81,7 +81,7 @@ impl Serialize for BoundInterval {
 pub struct IntervalVisitor;
 
 impl<'de> de::Visitor<'de> for IntervalVisitor {
-    type Value = BoundInterval;
+    type Value = ClosedInterval;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
         formatter.write_str("a ISO8601-2:2019 duration")
@@ -97,8 +97,8 @@ impl<'de> de::Visitor<'de> for IntervalVisitor {
     }
 }
 
-impl<'de> Deserialize<'de> for BoundInterval {
-    fn deserialize<D>(deserializer: D) -> Result<BoundInterval, D::Error>
+impl<'de> Deserialize<'de> for ClosedInterval {
+    fn deserialize<D>(deserializer: D) -> Result<ClosedInterval, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -106,11 +106,11 @@ impl<'de> Deserialize<'de> for BoundInterval {
     }
 }
 
-impl Iterator for BoundInterval {
-    type Item = BoundInterval;
+impl Iterator for ClosedInterval {
+    type Item = ClosedInterval;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let interval = BoundInterval::from_start(self.date, self.duration);
+        let interval = ClosedInterval::from_start(self.date, self.duration);
         // to prevent overlapping dates we add one day
         self.date = self.date + self.duration;
         Some(interval)
@@ -125,9 +125,11 @@ mod tests {
 
     #[test]
     fn test_from_start() {
-        let mut iter =
-            BoundInterval::from_start(NaiveDate::from_ymd(2022, 1, 1), RelativeDuration::months(1))
-                .until_after(NaiveDate::from_ymd(2023, 1, 1));
+        let mut iter = ClosedInterval::from_start(
+            NaiveDate::from_ymd(2022, 1, 1),
+            RelativeDuration::months(1),
+        )
+        .until_after(NaiveDate::from_ymd(2023, 1, 1));
 
         let next = iter.next().unwrap();
         assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
@@ -143,7 +145,7 @@ mod tests {
 
     #[test]
     fn test_from_end() {
-        let interval = BoundInterval::from_end(
+        let interval = ClosedInterval::from_end(
             NaiveDate::from_ymd(2022, 1, 1),
             RelativeDuration::months(1).with_weeks(-2).with_days(2),
         );

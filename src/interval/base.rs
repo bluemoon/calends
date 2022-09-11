@@ -5,10 +5,10 @@ use chrono::NaiveDate;
 use crate::{IntervalLike, RelativeDuration};
 
 use super::bound::Bound;
-use super::closed::BoundInterval;
+use super::closed::ClosedInterval;
 use super::iter::UntilAfter;
 use super::marker;
-use super::open::{UnboundedEndInterval, UnboundedStartInterval};
+use super::open::{OpenEndInterval, OpenStartInterval};
 
 #[derive(Debug, thiserror::Error)]
 pub enum IntervalError {
@@ -54,9 +54,9 @@ pub enum IntervalError {
 #[serde(untagged)]
 pub enum Interval {
     /// A closed interval that will always have a start and end
-    Closed(BoundInterval),
-    OpenStart(UnboundedStartInterval),
-    OpenEnd(UnboundedEndInterval),
+    Closed(ClosedInterval),
+    OpenStart(OpenStartInterval),
+    OpenEnd(OpenEndInterval),
 }
 
 impl Interval {
@@ -78,7 +78,7 @@ impl Interval {
     /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 31));
     /// ```
     pub fn closed_from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
-        Interval::Closed(BoundInterval::from_start(date, duration))
+        Interval::Closed(ClosedInterval::from_start(date, duration))
     }
 
     /// Create an interval from an end and a duration
@@ -99,7 +99,7 @@ impl Interval {
     /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2021, 12, 31));
     /// ```
     pub fn closed_from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
-        Interval::Closed(BoundInterval::from_end(end, duration))
+        Interval::Closed(ClosedInterval::from_end(end, duration))
     }
 
     /// Create an interval from an end and a duration
@@ -120,18 +120,21 @@ impl Interval {
     /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
     /// ```
     pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
-        Interval::Closed(BoundInterval::with_dates(start, end))
+        Interval::Closed(ClosedInterval::with_dates(start, end))
     }
 
     pub fn open_start(end: NaiveDate) -> Self {
-        Interval::OpenStart(UnboundedStartInterval::new(end))
+        Interval::OpenStart(OpenStartInterval::new(end))
     }
 
     pub fn open_end(start: NaiveDate) -> Self {
-        Interval::OpenEnd(UnboundedEndInterval::new(start))
+        Interval::OpenEnd(OpenEndInterval::new(start))
     }
 
-    pub fn until_after(self, until: NaiveDate) -> Result<UntilAfter<BoundInterval>, IntervalError> {
+    pub fn until_after(
+        self,
+        until: NaiveDate,
+    ) -> Result<UntilAfter<ClosedInterval>, IntervalError> {
         match self {
             Interval::Closed(closed) => Ok(UntilAfter::new(closed, until)),
             Interval::OpenStart(_) => Err(IntervalError::NotIterable),
@@ -176,14 +179,18 @@ impl From<IntervalWithEnd> for Interval {
     }
 }
 
+/// An interval that has a guaranteed start but deos not guarantee and end
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntervalWithStart {
-    Closed(BoundInterval),
-    OpenEnd(UnboundedEndInterval),
+    Closed(ClosedInterval),
+    OpenEnd(OpenEndInterval),
 }
 
 impl IntervalWithStart {
-    pub fn until_after(self, until: NaiveDate) -> Result<UntilAfter<BoundInterval>, IntervalError> {
+    pub fn until_after(
+        self,
+        until: NaiveDate,
+    ) -> Result<UntilAfter<ClosedInterval>, IntervalError> {
         match self {
             IntervalWithStart::Closed(closed) => Ok(UntilAfter::new(closed, until)),
             IntervalWithStart::OpenEnd(_) => Err(IntervalError::NotIterable),
@@ -223,8 +230,8 @@ impl TryFrom<Interval> for IntervalWithStart {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntervalWithEnd {
-    Closed(BoundInterval),
-    OpenStart(UnboundedStartInterval),
+    Closed(ClosedInterval),
+    OpenStart(OpenStartInterval),
 }
 
 impl IntervalLike for IntervalWithEnd {
