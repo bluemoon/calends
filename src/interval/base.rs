@@ -158,10 +158,37 @@ impl IntervalLike for Interval {
     }
 }
 
+impl From<IntervalWithStart> for Interval {
+    fn from(i: IntervalWithStart) -> Self {
+        match i {
+            IntervalWithStart::Closed(i) => Interval::Closed(i),
+            IntervalWithStart::OpenEnd(i) => Interval::OpenEnd(i),
+        }
+    }
+}
+
+impl From<IntervalWithEnd> for Interval {
+    fn from(i: IntervalWithEnd) -> Self {
+        match i {
+            IntervalWithEnd::Closed(i) => Interval::Closed(i),
+            IntervalWithEnd::OpenStart(i) => Interval::OpenStart(i),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntervalWithStart {
     Closed(BoundInterval),
     OpenEnd(UnboundedEndInterval),
+}
+
+impl IntervalWithStart {
+    pub fn until_after(self, until: NaiveDate) -> Result<UntilAfter<BoundInterval>, IntervalError> {
+        match self {
+            IntervalWithStart::Closed(closed) => Ok(UntilAfter::new(closed, until)),
+            IntervalWithStart::OpenEnd(_) => Err(IntervalError::NotIterable),
+        }
+    }
 }
 
 impl IntervalLike for IntervalWithStart {
