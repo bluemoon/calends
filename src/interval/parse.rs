@@ -52,13 +52,14 @@ pub fn parse_open_end_interval(i: &[u8]) -> IResult<&[u8], UnboundedEndInterval>
 
 #[cfg(test)]
 mod tests {
-    use crate::IntervalLike;
+    use crate::{IntervalLike, RelativeDuration};
 
     use super::*;
 
     #[test]
     fn test_parse_interval() {
         let (_i, interval) = parse_interval("2022-01-01/2023-01-01".as_bytes()).unwrap();
+        //assert_eq!(interval.duration, RelativeDuration::months(12));
         assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1))
     }
 }

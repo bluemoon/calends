@@ -14,7 +14,7 @@ pub struct BoundInterval {
     /// e.g. if the direction is "forwards" and the end is inclusive then it will include the
     /// specified end date
     date: NaiveDate,
-    duration: RelativeDuration,
+    pub(crate) duration: RelativeDuration,
 }
 
 impl BoundInterval {
@@ -35,7 +35,8 @@ impl BoundInterval {
     pub fn with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         BoundInterval {
             date: start,
-            duration: RelativeDuration::from_duration_between(start, end),
+            duration: RelativeDuration::from_duration_between(start, end)
+                + RelativeDuration::days(1),
         }
     }
 
