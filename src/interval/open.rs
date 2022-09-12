@@ -30,6 +30,10 @@ impl IntervalLike for OpenStartInterval {
     fn bound_end(&self) -> Bound<NaiveDate> {
         Bound::Included(self.end)
     }
+
+    fn duration(&self) -> Option<crate::RelativeDuration> {
+        None
+    }
 }
 
 impl marker::End for OpenStartInterval {}
@@ -91,6 +95,10 @@ impl IntervalLike for OpenEndInterval {
 
     fn bound_end(&self) -> Bound<NaiveDate> {
         Bound::Unbounded
+    }
+
+    fn duration(&self) -> Option<crate::RelativeDuration> {
+        None
     }
 }
 

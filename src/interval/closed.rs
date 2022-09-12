@@ -35,8 +35,7 @@ impl ClosedInterval {
     pub fn with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         ClosedInterval {
             date: start,
-            duration: RelativeDuration::from_duration_between(start, end)
-                + RelativeDuration::days(1),
+            duration: RelativeDuration::from_duration_between(start, end),
         }
     }
 
@@ -47,7 +46,7 @@ impl ClosedInterval {
 
     /// End date of the interval
     fn computed_end_date(&self) -> NaiveDate {
-        (self.date + self.duration).pred()
+        self.date + self.duration
     }
 
     pub fn until_after(self, until: NaiveDate) -> UntilAfter<ClosedInterval> {
@@ -62,6 +61,10 @@ impl IntervalLike for ClosedInterval {
 
     fn bound_end(&self) -> Bound<NaiveDate> {
         Bound::Included(self.computed_end_date())
+    }
+
+    fn duration(&self) -> Option<RelativeDuration> {
+        Some(self.duration)
     }
 }
 
@@ -114,43 +117,5 @@ impl Iterator for ClosedInterval {
         // to prevent overlapping dates we add one day
         self.date = self.date + self.duration;
         Some(interval)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::interval::marker::{End, Start};
-
-    use super::*;
-
-    #[test]
-    fn test_from_start() {
-        let mut iter = ClosedInterval::from_start(
-            NaiveDate::from_ymd(2022, 1, 1),
-            RelativeDuration::months(1),
-        )
-        .until_after(NaiveDate::from_ymd(2023, 1, 1));
-
-        let next = iter.next().unwrap();
-        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 31));
-
-        let next = iter.next().unwrap();
-        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 1));
-        assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 28));
-
-        let next = iter.next().unwrap();
-        assert_eq!(next.start(), NaiveDate::from_ymd(2022, 3, 1));
-    }
-
-    #[test]
-    fn test_from_end() {
-        let interval = ClosedInterval::from_end(
-            NaiveDate::from_ymd(2022, 1, 1),
-            RelativeDuration::months(1).with_weeks(-2).with_days(2),
-        );
-
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2021, 12, 13));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2021, 12, 31));
     }
 }

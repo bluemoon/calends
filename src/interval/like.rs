@@ -1,3 +1,5 @@
+use crate::RelativeDuration;
+
 ///! Interval
 ///!
 ///! Used to coalesce both recurring and non-recurring intervals into one interface.
@@ -10,6 +12,7 @@ use chrono::NaiveDate;
 pub trait IntervalLike {
     fn bound_start(&self) -> Bound<NaiveDate>;
     fn bound_end(&self) -> Bound<NaiveDate>;
+    fn duration(&self) -> Option<RelativeDuration>;
 
     /// Start date in the form of an option
     ///
@@ -84,6 +87,10 @@ mod tests {
 
         fn bound_end(&self) -> Bound<NaiveDate> {
             Bound::Included(self.end)
+        }
+
+        fn duration(&self) -> Option<RelativeDuration> {
+            todo!()
         }
     }
 

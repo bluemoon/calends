@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use chrono::NaiveDate;
 
 use crate::{IntervalLike, RelativeDuration};
@@ -159,6 +157,14 @@ impl IntervalLike for Interval {
             Interval::OpenEnd(ue) => ue.bound_end(),
         }
     }
+
+    fn duration(&self) -> Option<RelativeDuration> {
+        match self {
+            Interval::Closed(i) => i.duration(),
+            Interval::OpenStart(i) => i.duration(),
+            Interval::OpenEnd(i) => i.duration(),
+        }
+    }
 }
 
 impl From<IntervalWithStart> for Interval {
@@ -212,6 +218,13 @@ impl IntervalLike for IntervalWithStart {
             IntervalWithStart::OpenEnd(ue) => ue.bound_end(),
         }
     }
+
+    fn duration(&self) -> Option<RelativeDuration> {
+        match self {
+            IntervalWithStart::Closed(i) => i.duration(),
+            IntervalWithStart::OpenEnd(i) => i.duration(),
+        }
+    }
 }
 
 impl marker::Start for IntervalWithStart {}
@@ -248,6 +261,13 @@ impl IntervalLike for IntervalWithEnd {
             IntervalWithEnd::OpenStart(u) => u.bound_end(),
         }
     }
+
+    fn duration(&self) -> Option<RelativeDuration> {
+        match self {
+            IntervalWithEnd::Closed(i) => i.duration(),
+            IntervalWithEnd::OpenStart(i) => i.duration(),
+        }
+    }
 }
 
 impl marker::End for IntervalWithEnd {}
@@ -261,5 +281,85 @@ impl TryFrom<Interval> for IntervalWithEnd {
             Interval::OpenEnd(_) => Err(IntervalError::NotConvertibleToWithEnd),
             Interval::OpenStart(i) => Ok(IntervalWithEnd::OpenStart(i)),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_reciprocity() {
+        let start = NaiveDate::from_ymd(2022, 1, 1);
+        let interval = Interval::closed_with_dates(start, NaiveDate::from_ymd(2023, 1, 1));
+
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 1, 1)
+        );
+        assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+
+        let duration = interval.duration().unwrap();
+
+        let interval_duration = Interval::closed_from_start(start, duration);
+        assert_eq!(interval.start_opt(), interval_duration.start_opt());
+        assert_eq!(interval.end_opt(), interval_duration.end_opt());
+    }
+
+    #[test]
+    fn test_interval_closed_from_start() {
+        let mut iter = Interval::closed_from_start(
+            NaiveDate::from_ymd(2022, 1, 1),
+            RelativeDuration::months(1),
+        )
+        .until_after(NaiveDate::from_ymd(2023, 1, 1))
+        .unwrap();
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+        assert_eq!(next.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 31));
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 2, 1));
+        assert_eq!(next.end_opt().unwrap(), NaiveDate::from_ymd(2022, 2, 28));
+
+        let next = iter.next().unwrap();
+        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 3, 1));
+    }
+
+    #[test]
+    fn test_interval_closed_from_end() {
+        let interval = Interval::closed_from_end(
+            NaiveDate::from_ymd(2022, 1, 1),
+            RelativeDuration::months(1).with_weeks(-2).with_days(2),
+        );
+
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2021, 12, 13)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2021, 12, 31)
+        );
+    }
+
+    #[test]
+    fn test_interval_closed_with_dates() {
+        let mut iter = Interval::closed_with_dates(
+            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd(2023, 1, 1),
+        )
+        .until_after(NaiveDate::from_ymd(2025, 1, 1))
+        .unwrap();
+
+        assert_eq!(
+            iter.next().unwrap().start_opt(),
+            Some(NaiveDate::from_ymd(2022, 1, 1))
+        );
+        assert_eq!(
+            iter.next().unwrap().start_opt(),
+            Some(NaiveDate::from_ymd(2023, 1, 1))
+        );
     }
 }
