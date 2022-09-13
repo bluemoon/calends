@@ -39,6 +39,14 @@ impl ClosedInterval {
         }
     }
 
+    fn adjust_duration(duration: RelativeDuration) -> RelativeDuration {
+        match duration.cmp(&RelativeDuration::zero()) {
+            std::cmp::Ordering::Less => duration + RelativeDuration::default().with_days(1),
+            std::cmp::Ordering::Equal => duration,
+            std::cmp::Ordering::Greater => duration - RelativeDuration::default().with_days(1),
+        }
+    }
+
     /// Start date of the interval
     fn computed_start_date(&self) -> NaiveDate {
         self.date
@@ -46,7 +54,7 @@ impl ClosedInterval {
 
     /// End date of the interval
     fn computed_end_date(&self) -> NaiveDate {
-        self.date + self.duration
+        self.date + ClosedInterval::adjust_duration(self.duration)
     }
 
     pub fn until_after(self, until: NaiveDate) -> UntilAfter<ClosedInterval> {

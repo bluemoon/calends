@@ -291,13 +291,16 @@ mod tests {
     #[test]
     fn test_reciprocity() {
         let start = NaiveDate::from_ymd(2022, 1, 1);
-        let interval = Interval::closed_with_dates(start, NaiveDate::from_ymd(2023, 1, 1));
+        let interval = Interval::closed_with_dates(start, NaiveDate::from_ymd(2022, 12, 31));
 
         assert_eq!(
             interval.start_opt().unwrap(),
             NaiveDate::from_ymd(2022, 1, 1)
         );
-        assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 12, 31)
+        );
 
         let duration = interval.duration().unwrap();
 

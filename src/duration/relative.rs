@@ -44,7 +44,7 @@ pub struct RelativeImpl {
 ///       ◀ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
 ///
 /// ```
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct RelativeDuration(RelativeImpl);
 
 impl RelativeDuration {
@@ -220,6 +220,26 @@ impl RelativeDuration {
         }
 
         result
+    }
+}
+
+impl PartialOrd for RelativeDuration {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        (self.num_months(), self.num_weeks(), self.num_days()).partial_cmp(&(
+            other.num_months(),
+            other.num_weeks(),
+            other.num_days(),
+        ))
+    }
+}
+
+impl Ord for RelativeDuration {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (self.num_months(), self.num_weeks(), self.num_days()).cmp(&(
+            other.num_months(),
+            other.num_weeks(),
+            other.num_days(),
+        ))
     }
 }
 
