@@ -117,7 +117,7 @@
 //! let s = S { i: int.clone() };
 //!
 //! let int_string = serde_json::to_string(&s).unwrap();
-//! assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
+//! assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-25"}"#);
 //!
 //! let parsed: S = serde_json::from_str(&int_string).unwrap();
 //! assert_eq!(parsed.i.start_opt().unwrap(), int.start_opt().unwrap())

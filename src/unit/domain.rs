@@ -32,21 +32,21 @@ impl CalendarUnit {
         let res = match self {
             CalendarUnit::Year(year) => ClosedInterval::from_start(
                 NaiveDate::from_yo(*year, 1),
-                RelativeDuration::months(12),
+                RelativeDuration::months(12).with_days(-1),
             ),
             CalendarUnit::Quarter(year, quarter) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
-                RelativeDuration::months(3),
+                RelativeDuration::months(3).with_days(-1),
             ),
 
             CalendarUnit::Half(year, half) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
-                RelativeDuration::months(6),
+                RelativeDuration::months(6).with_days(-1),
             ),
 
             CalendarUnit::Month(year, month) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*month).try_into().unwrap(), 1),
-                RelativeDuration::months(1),
+                RelativeDuration::months(1).with_days(-1),
             ),
 
             CalendarUnit::Week(year, week) => ClosedInterval::from_start(

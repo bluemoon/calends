@@ -39,6 +39,6 @@ mod tests {
 
         let i2 = interval(i2);
         assert_eq!(i2.0, Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(i2.1, NaiveDate::from_ymd(2022, 1, 2));
+        assert_eq!(i2.1, NaiveDate::from_ymd(2022, 1, 3));
     }
 }
