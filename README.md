@@ -3,6 +3,13 @@
 calends is a library for durations, intervals and other calendar related operations. It is
 designed to work with chrono.
 
+## Rationale
+
+Calends was built to extend the current date time tools that exist in the ecosystem such as
+chrono. Its main focus is on finding and handling more complex things such as intervals of
+time, durations which focus on months or longer (chrono does not support months),
+complicated recurrence rules such as "the 3rd day of the month recurring 3 times".
+
 ## Durations of time
 
 A *RelativeDuration* is a unit of time that has some ability to be applied to a date to produce another
@@ -119,7 +126,7 @@ let int = Interval::closed_from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
 let s = S { i: int.clone() };
 
 let int_string = serde_json::to_string(&s).unwrap();
-assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
+assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-25"}"#);
 
 let parsed: S = serde_json::from_str(&int_string).unwrap();
 assert_eq!(parsed.i.start_opt().unwrap(), int.start_opt().unwrap())
