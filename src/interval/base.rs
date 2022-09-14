@@ -194,6 +194,27 @@ pub enum IntervalWithStart {
 }
 
 impl IntervalWithStart {
+    /// Create an interval from an end and a duration
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use chrono::NaiveDate;
+    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::interval::marker::{End, Start};
+    ///
+    /// let interval = IntervalWithStart::closed_with_dates(
+    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     NaiveDate::from_ymd(2023, 1, 1),
+    /// );
+    ///
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+    /// ```
+    pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
+        IntervalWithStart::Closed(ClosedInterval::with_dates(start, end))
+    }
+
     pub fn until_after(
         self,
         until: NaiveDate,
