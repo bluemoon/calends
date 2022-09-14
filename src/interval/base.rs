@@ -186,7 +186,8 @@ impl From<IntervalWithEnd> for Interval {
 }
 
 /// An interval that has a guaranteed start but deos not guarantee and end
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
 pub enum IntervalWithStart {
     Closed(ClosedInterval),
     OpenEnd(OpenEndInterval),
@@ -241,7 +242,8 @@ impl TryFrom<Interval> for IntervalWithStart {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(untagged)]
 pub enum IntervalWithEnd {
     Closed(ClosedInterval),
     OpenStart(OpenStartInterval),
