@@ -3,6 +3,21 @@
 calends is a library for durations, intervals and other calendar related operations. It is
 designed to work with chrono.
 
+## Rationale
+
+Calends was built to extend the current date time tools that exist in the ecosystem such as
+chrono. Its main focus is on finding and handling more complex things such as intervals of
+time, durations which focus on months or longer (chrono does not support months),
+complicated recurrence rules such as "the 3rd day of the month recurring 3 times".
+
+In addition to supporting the date time logic it is also important to consider ISO8601-2:2019.
+This standard was created to extend the current ISO8601 standard and add support for intervals,
+durations, recurring times. This is not a widely adopted standard (likely due to its closed and
+very expensive nature).
+
+Many concepts that are in this library have been influenced by the ISO8601-2:2019 standard and
+CalConnect.
+
 ## Durations of time
 
 A *RelativeDuration* is a unit of time that has some ability to be applied to a date to produce another
@@ -75,39 +90,14 @@ assert_eq!(recur.next(), None);
 
 ## Intervals
 
-An interval is a span of time that can be bound or unbound. This means that you
-can iterate until the beginning/end of the time. However in practice this will be limited by
-chronos types.
+An interval is a span of time that can be bound or unbound. There are three important cases to
+consider: closed, unbounded start, and unbounded end.
 
-This will likely be used to do things like iterate by week, month, quarter, or year.
+- A closed interval has start and an end and can be repeated.
+- An unbounded start interval does not have a start and only has an end.
+- An unbounded end interval does not have an end but has a start.
 
-```rust
-use calends::{Interval, IntervalLike, RelativeDuration};
-use calends::interval::marker::{End, Start};
-use chrono::NaiveDate;
-
-let start = NaiveDate::from_ymd(2022, 1, 1);
-let duration = RelativeDuration::months(1);
-
-let mut interval = Interval::from_start(start, duration);
-
-assert_eq!(interval.start(), start);
-assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 1, 31));
-
-// Intervals are also iterable because they always have a duration!
-// they are inclusive so they return the current time span first
-
-let next = interval.next().unwrap();
-
-assert_eq!(next.start(), NaiveDate::from_ymd(2022, 1, 1));
-assert_eq!(next.end(), NaiveDate::from_ymd(2022, 1, 31));
-
-let next = interval.next().unwrap();
-
-assert_eq!(next.start(), NaiveDate::from_ymd(2022, 2, 1));
-assert_eq!(next.end(), NaiveDate::from_ymd(2022, 2, 28));
-
-```
+### Closed interval
 
 In combination with RelativeDuration you can do things such as iterate the second to last day
 of the month.
@@ -119,7 +109,7 @@ use chrono::NaiveDate;
 let duration = RelativeDuration::months(1).with_days(-2);
 let start = NaiveDate::from_ymd(2022, 1, 1);
 
-let mut interval = Interval::from_start(start, duration);
+let mut interval = Interval::closed_from_start(start, duration);
 ```
 
 ### Serialization
@@ -131,28 +121,23 @@ widely used yet we do not set it as the default (de)serializer.
 
 ```rust
 use chrono::NaiveDate;
-use calends::{Interval, RelativeDuration};
+use calends::{Interval, RelativeDuration, IntervalLike};
 use calends::interval::marker::Start;
-use calends::int_iso8601;
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 struct S {
-   #[serde(
-     deserialize_with = "int_iso8601::deserialize",
-     serialize_with = "int_iso8601::serialize"
-   )]
    i: Interval,
 }
 
 let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
-let int = Interval::from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
+let int = Interval::closed_from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
 let s = S { i: int.clone() };
 
 let int_string = serde_json::to_string(&s).unwrap();
-assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-24"}"#);
+assert_eq!(int_string, r#"{"i":"2022-01-01/2023-11-25"}"#);
 
 let parsed: S = serde_json::from_str(&int_string).unwrap();
-assert_eq!(parsed.i.start(), int.start())
+assert_eq!(parsed.i.start_opt().unwrap(), int.start_opt().unwrap())
 ```
 
 License: MIT

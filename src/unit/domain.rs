@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use chrono::NaiveDate;
 
-use crate::{Interval, RelativeDuration};
+use crate::{interval::ClosedInterval, Interval, RelativeDuration};
 
 /// A unit in time
 ///
@@ -29,30 +29,33 @@ pub enum CalendarUnit {
 
 impl CalendarUnit {
     pub fn into_interval(&self) -> Interval {
-        match self {
-            CalendarUnit::Year(year) => {
-                Interval::from_start(NaiveDate::from_yo(*year, 1), RelativeDuration::months(12))
-            }
-            CalendarUnit::Quarter(year, quarter) => Interval::from_start(
+        let res = match self {
+            CalendarUnit::Year(year) => ClosedInterval::from_start(
+                NaiveDate::from_yo(*year, 1),
+                RelativeDuration::months(12).with_days(-1),
+            ),
+            CalendarUnit::Quarter(year, quarter) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
-                RelativeDuration::months(3),
+                RelativeDuration::months(3).with_days(-1),
             ),
 
-            CalendarUnit::Half(year, half) => Interval::from_start(
+            CalendarUnit::Half(year, half) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
-                RelativeDuration::months(6),
+                RelativeDuration::months(6).with_days(-1),
             ),
 
-            CalendarUnit::Month(year, month) => Interval::from_start(
+            CalendarUnit::Month(year, month) => ClosedInterval::from_start(
                 NaiveDate::from_ymd(*year, (*month).try_into().unwrap(), 1),
-                RelativeDuration::months(1),
+                RelativeDuration::months(1).with_days(-1),
             ),
 
-            CalendarUnit::Week(year, week) => Interval::from_start(
+            CalendarUnit::Week(year, week) => ClosedInterval::from_start(
                 NaiveDate::from_isoywd(*year, (*week).into(), chrono::Weekday::Mon),
                 RelativeDuration::days(7),
             ),
-        }
+        };
+
+        Interval::Closed(res)
     }
 
     pub fn succ(&self) -> CalendarUnit {
@@ -63,7 +66,7 @@ impl CalendarUnit {
                 let mut year = *year;
                 if quarter == 4 {
                     quarter = 1;
-                    year = year + 1;
+                    year += 1;
                 }
                 CalendarUnit::Quarter(year, quarter)
             }
@@ -88,25 +91,43 @@ impl Display for CalendarUnit {
 
 #[cfg(test)]
 mod tests {
-    use crate::interval::marker::{End, Start};
+    use crate::IntervalLike;
 
     use super::*;
 
     #[test]
     fn test_quarter_interval() {
         let interval = CalendarUnit::Quarter(2022, 1).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 3, 31));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 1, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 3, 31)
+        );
 
         let interval = CalendarUnit::Quarter(2022, 2).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 4, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 6, 30));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 4, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 6, 30)
+        );
     }
 
     #[test]
     fn test_half_interval() {
         let interval = CalendarUnit::Half(2022, 2).into_interval();
-        assert_eq!(interval.start(), NaiveDate::from_ymd(2022, 7, 1));
-        assert_eq!(interval.end(), NaiveDate::from_ymd(2022, 12, 31));
+        assert_eq!(
+            interval.start_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 7, 1)
+        );
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd(2022, 12, 31)
+        );
     }
 }

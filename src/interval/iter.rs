@@ -1,13 +1,11 @@
 use chrono::NaiveDate;
 
-use crate::Interval;
-
-use super::marker::End;
+use super::{marker::End, ClosedInterval};
 
 #[derive(Debug, Clone)]
 pub struct UntilAfter<T>
 where
-    T: Iterator<Item = Interval>,
+    T: Iterator<Item = ClosedInterval>,
 {
     iter: T,
     until: NaiveDate,
@@ -15,7 +13,7 @@ where
 
 impl<T> UntilAfter<T>
 where
-    T: Iterator<Item = Interval>,
+    T: Iterator<Item = ClosedInterval>,
 {
     pub fn new(iter: T, until: NaiveDate) -> Self {
         UntilAfter { iter, until }
@@ -24,9 +22,9 @@ where
 
 impl<T> Iterator for UntilAfter<T>
 where
-    T: Iterator<Item = Interval>,
+    T: Iterator<Item = ClosedInterval>,
 {
-    type Item = Interval;
+    type Item = ClosedInterval;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.iter.next() {

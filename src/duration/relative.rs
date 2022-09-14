@@ -44,7 +44,7 @@ pub struct RelativeImpl {
 ///       ◀ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
 ///
 /// ```
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 pub struct RelativeDuration(RelativeImpl);
 
 impl RelativeDuration {
@@ -223,6 +223,26 @@ impl RelativeDuration {
     }
 }
 
+impl PartialOrd for RelativeDuration {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        (self.num_months(), self.num_weeks(), self.num_days()).partial_cmp(&(
+            other.num_months(),
+            other.num_weeks(),
+            other.num_days(),
+        ))
+    }
+}
+
+impl Ord for RelativeDuration {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        (self.num_months(), self.num_weeks(), self.num_days()).cmp(&(
+            other.num_months(),
+            other.num_weeks(),
+            other.num_days(),
+        ))
+    }
+}
+
 impl Neg for RelativeDuration {
     type Output = RelativeDuration;
 
@@ -348,7 +368,9 @@ mod tests {
             NaiveDate::from_ymd(2023, 1, 1),
         );
 
-        assert_eq!(duration.num_months(), 12)
+        assert_eq!(duration.num_months(), 12);
+        assert_eq!(duration.num_weeks(), 0);
+        assert_eq!(duration.num_days(), 0);
     }
 
     #[test]
@@ -460,5 +482,12 @@ mod tests {
     fn test_day() {
         assert_eq!(RelativeDuration::days(1).num_days(), 1);
         assert_eq!(RelativeDuration::days(-1).num_days(), -1)
+    }
+
+    #[test]
+    fn test_add_year() {
+        let rd = RelativeDuration::months(12);
+        let next = NaiveDate::from_ymd(2022, 1, 1) + rd;
+        assert_eq!(next, NaiveDate::from_ymd(2023, 1, 1));
     }
 }
