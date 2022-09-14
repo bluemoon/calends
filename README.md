@@ -10,6 +10,14 @@ chrono. Its main focus is on finding and handling more complex things such as in
 time, durations which focus on months or longer (chrono does not support months),
 complicated recurrence rules such as "the 3rd day of the month recurring 3 times".
 
+In addition to supporting the date time logic it is also important to consider ISO8601-2:2019.
+This standard was created to extend the current ISO8601 standard and add support for intervals,
+durations, recurring times. This is not a widely adopted standard (likely due to its closed and
+very expensive nature).
+
+Many concepts that are in this library have been influenced by the ISO8601-2:2019 standard and
+CalConnect.
+
 ## Durations of time
 
 A *RelativeDuration* is a unit of time that has some ability to be applied to a date to produce another
