@@ -200,7 +200,7 @@ impl IntervalWithStart {
     ///
     /// ```
     /// use chrono::NaiveDate;
-    /// use calends::{Interval, IntervalLike, RelativeDuration};
+    /// use calends::{IntervalWithStart, IntervalLike, RelativeDuration};
     /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = IntervalWithStart::closed_with_dates(

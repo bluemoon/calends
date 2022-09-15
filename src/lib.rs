@@ -148,7 +148,7 @@ pub mod util;
 
 pub use crate::duration::serde::rd_iso8601;
 pub use crate::duration::RelativeDuration;
-pub use crate::interval::Interval;
+pub use crate::interval::{Interval, IntervalWithEnd, IntervalWithStart};
 pub use crate::recurrence::Rule;
 pub use crate::unit::CalendarUnit;
 pub use crate::util::*;

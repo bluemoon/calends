@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use chrono::NaiveDate;
+use serde::{Serialize, Serializer};
 
 use crate::{interval::ClosedInterval, Interval, RelativeDuration};
 
@@ -18,7 +19,7 @@ use crate::{interval::ClosedInterval, Interval, RelativeDuration};
 ///
 /// This will also likely be useful if custom fiscal calendars ever get added
 ///
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash)]
 pub enum CalendarUnit {
     Year(i32),
     Quarter(i32, u8),
@@ -86,6 +87,16 @@ impl Display for CalendarUnit {
             CalendarUnit::Month(y, m) => write!(f, "{}-{}", y, m),
             CalendarUnit::Week(y, w) => write!(f, "{}-W{}", y, w),
         }
+    }
+}
+
+/// Serialize a `CalendarUnit`
+impl Serialize for CalendarUnit {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
     }
 }
 

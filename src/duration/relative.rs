@@ -102,7 +102,7 @@ impl RelativeDuration {
     /// Create a RelativeDuration with the number of days
     #[inline]
     pub fn days(days: i32) -> RelativeDuration {
-        RelativeDuration::default().with_days(days)
+        RelativeDuration::zero().with_days(days)
     }
 
     /// Set the number of months in the duration
