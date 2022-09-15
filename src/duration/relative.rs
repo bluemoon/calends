@@ -70,8 +70,8 @@ impl RelativeDuration {
     /// ```
     pub fn from_duration_between(start: NaiveDate, end: NaiveDate) -> RelativeDuration {
         let mut months = (end.year() - start.year()) * 12;
-        months += (end.month() - start.month()) as i32;
-        let days = (end.day() - start.day()) as i32;
+        months += end.month() as i32 - start.month() as i32;
+        let days = end.day() as i32 - start.day() as i32;
         RelativeDuration::from_raw(months, 0, days).unwrap()
     }
 
