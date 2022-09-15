@@ -19,7 +19,7 @@ use crate::{interval::ClosedInterval, Interval, RelativeDuration};
 ///
 /// This will also likely be useful if custom fiscal calendars ever get added
 ///
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub enum CalendarUnit {
     Year(i32),
     Quarter(i32, u8),
