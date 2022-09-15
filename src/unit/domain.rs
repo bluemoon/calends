@@ -68,6 +68,8 @@ impl CalendarUnit {
                 if quarter == 4 {
                     quarter = 1;
                     year += 1;
+                } else {
+                    quarter += 1;
                 }
                 CalendarUnit::Quarter(year, quarter)
             }
@@ -77,6 +79,8 @@ impl CalendarUnit {
                 if half == 2 {
                     half = 1;
                     year += 1;
+                } else {
+                    half += 1;
                 }
                 CalendarUnit::Half(year, half)
             }
@@ -86,6 +90,8 @@ impl CalendarUnit {
                 if month == 12 {
                     month = 1;
                     year += 1;
+                } else {
+                    month += 1;
                 }
                 CalendarUnit::Month(year, month)
             }
@@ -98,9 +104,9 @@ impl Iterator for CalendarUnit {
     type Item = CalendarUnit;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let succ = self.succ();
-        *self = succ;
-        Some(succ)
+        let cur = *self;
+        *self = cur.succ();
+        Some(cur)
     }
 }
 
@@ -131,6 +137,24 @@ mod tests {
     use crate::IntervalLike;
 
     use super::*;
+
+    #[test]
+    fn test_quarter_iterator() {
+        let mut c = CalendarUnit::Quarter(2022, 1);
+        assert_eq!(c.next(), Some(CalendarUnit::Quarter(2022, 1)));
+        assert_eq!(c.next(), Some(CalendarUnit::Quarter(2022, 2)));
+        assert_eq!(c.next(), Some(CalendarUnit::Quarter(2022, 3)));
+        assert_eq!(c.next(), Some(CalendarUnit::Quarter(2022, 4)));
+        assert_eq!(c.next(), Some(CalendarUnit::Quarter(2023, 1)));
+    }
+
+    #[test]
+    fn test_half_iterator() {
+        let mut c = CalendarUnit::Half(2022, 1);
+        assert_eq!(c.next(), Some(CalendarUnit::Half(2022, 1)));
+        assert_eq!(c.next(), Some(CalendarUnit::Half(2022, 2)));
+        assert_eq!(c.next(), Some(CalendarUnit::Half(2023, 1)));
+    }
 
     #[test]
     fn test_quarter_interval() {
