@@ -71,10 +71,36 @@ impl CalendarUnit {
                 }
                 CalendarUnit::Quarter(year, quarter)
             }
-            CalendarUnit::Half(_, _) => todo!(),
-            CalendarUnit::Month(_, _) => todo!(),
+            CalendarUnit::Half(year, half) => {
+                let mut half = *half;
+                let mut year = *year;
+                if half == 2 {
+                    half = 1;
+                    year += 1;
+                }
+                CalendarUnit::Half(year, half)
+            }
+            CalendarUnit::Month(year, month) => {
+                let mut month = *month;
+                let mut year = *year;
+                if month == 12 {
+                    month = 1;
+                    year += 1;
+                }
+                CalendarUnit::Month(year, month)
+            }
             CalendarUnit::Week(_, _) => todo!(),
         }
+    }
+}
+
+impl Iterator for CalendarUnit {
+    type Item = CalendarUnit;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let succ = self.succ();
+        *self = succ;
+        Some(succ)
     }
 }
 
