@@ -48,6 +48,11 @@ pub enum Rule {
 
 impl Rule {
     /// Create a recurrence that occurs on a quarterly basis
+    pub fn yearly() -> Rule {
+        Rule::Offset(RelativeDuration::months(12), 0)
+    }
+
+    /// Create a recurrence that occurs on a quarterly basis
     pub fn quarterly() -> Rule {
         Rule::Offset(RelativeDuration::months(3), 0)
     }
