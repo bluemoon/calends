@@ -97,19 +97,19 @@ mod tests {
     #[test]
     fn test_within() {
         let i1 = Int {
-            start: NaiveDate::from_ymd(2022, 1, 1),
-            end: NaiveDate::from_ymd(2022, 12, 31),
+            start: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
         };
 
-        assert!(i1.within(NaiveDate::from_ymd(2022, 5, 18)));
-        assert!(!i1.within(NaiveDate::from_ymd(2023, 5, 18)));
+        assert!(i1.within(NaiveDate::from_ymd_opt(2022, 5, 18).unwrap()));
+        assert!(!i1.within(NaiveDate::from_ymd_opt(2023, 5, 18).unwrap()));
     }
 
     #[test]
     fn test_start_date() {
         let i1 = Int {
-            start: NaiveDate::from_ymd(2022, 1, 1),
-            end: NaiveDate::from_ymd(2022, 12, 31),
+            start: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
         };
 
         assert_eq!(i1.start_opt(), NaiveDate::from_ymd_opt(2022, 1, 1));
@@ -118,8 +118,8 @@ mod tests {
     #[test]
     fn test_end_date() {
         let i1 = Int {
-            start: NaiveDate::from_ymd(2022, 1, 1),
-            end: NaiveDate::from_ymd(2022, 12, 31),
+            start: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
         };
 
         assert_eq!(i1.end_opt(), NaiveDate::from_ymd_opt(2022, 12, 31));
@@ -128,8 +128,8 @@ mod tests {
     #[test]
     fn test_iso8601() {
         let i = Int {
-            start: NaiveDate::from_ymd(2022, 1, 1),
-            end: NaiveDate::from_ymd(2022, 12, 31),
+            start: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
         };
 
         assert_eq!(i.iso8601(), "2022-01-01/2022-12-31")

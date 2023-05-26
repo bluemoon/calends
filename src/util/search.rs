@@ -4,7 +4,7 @@ use crate::shift;
 
 // Borrowed from bdays
 pub fn days_in_month(year: i32, month: u32) -> u32 {
-    NaiveDate::from_ymd(
+    NaiveDate::from_ymd_opt(
         match month {
             12 => year + 1,
             _ => year,
@@ -15,12 +15,13 @@ pub fn days_in_month(year: i32, month: u32) -> u32 {
         },
         1,
     )
-    .signed_duration_since(NaiveDate::from_ymd(year, month, 1))
+    .unwrap()
+    .signed_duration_since(NaiveDate::from_ymd_opt(year, month, 1).unwrap())
     .num_days() as u32
 }
 
 pub fn find_weekday_ascending(weekday: Weekday, yy: i32, mm: u32, occurrence: u32) -> NaiveDate {
-    let anchor = NaiveDate::from_ymd(yy, mm, 1);
+    let anchor = NaiveDate::from_ymd_opt(yy, mm, 1).unwrap();
     let mut offset = (weekday.number_from_monday() + 7 - anchor.weekday().number_from_monday()) % 7;
 
     if occurrence > 1 {
@@ -44,7 +45,10 @@ pub fn find_weekday_descending(weekday: Weekday, yy: i32, mm: u32, occurrence: u
 
 /// Weeks in year
 pub fn weeks_in_year(date: &NaiveDate) -> u32 {
-    NaiveDate::from_ymd(date.year(), 12, 31).iso_week().week()
+    NaiveDate::from_ymd_opt(date.year(), 12, 31)
+        .unwrap()
+        .iso_week()
+        .week()
 }
 
 /// Returns the quarter start month
@@ -62,22 +66,25 @@ pub fn month_end(mut yy: i32, mut mm: u32) -> NaiveDate {
         mm += 1;
     }
 
-    NaiveDate::from_ymd(yy, mm, 1).pred()
+    NaiveDate::from_ymd_opt(yy, mm, 1)
+        .unwrap()
+        .pred_opt()
+        .unwrap()
 }
 
 #[inline]
 pub fn beginning_of_quarter(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(d.year(), quarter_month(d), 1)
+    NaiveDate::from_ymd_opt(d.year(), quarter_month(d), 1).unwrap()
 }
 
 #[inline]
 pub fn beginning_of_year(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(d.year(), 1, 1)
+    NaiveDate::from_ymd_opt(d.year(), 1, 1).unwrap()
 }
 
 #[inline]
 pub fn beginning_of_month(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(d.year(), d.month(), 1)
+    NaiveDate::from_ymd_opt(d.year(), d.month(), 1).unwrap()
 }
 
 /// Beginning of a biweek
@@ -90,10 +97,10 @@ pub fn beginning_of_month(d: &NaiveDate) -> NaiveDate {
 #[inline]
 pub fn beginning_of_biweek(d: &NaiveDate) -> NaiveDate {
     let beginning = if d.iso_week().week() % 2 == 0 {
-        NaiveDate::from_isoywd(d.iso_week().year(), d.iso_week().week(), Weekday::Mon)
+        NaiveDate::from_isoywd_opt(d.iso_week().year(), d.iso_week().week(), Weekday::Mon).unwrap()
             - Duration::weeks(1)
     } else {
-        NaiveDate::from_isoywd(d.iso_week().year(), d.iso_week().week(), Weekday::Mon)
+        NaiveDate::from_isoywd_opt(d.iso_week().year(), d.iso_week().week(), Weekday::Mon).unwrap()
     };
 
     debug_assert!(
@@ -112,17 +119,17 @@ pub fn beginning_of_biweek(d: &NaiveDate) -> NaiveDate {
 ///
 #[inline]
 pub fn beginning_of_week(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_isoywd(d.iso_week().year(), d.iso_week().week(), Weekday::Mon)
+    NaiveDate::from_isoywd_opt(d.iso_week().year(), d.iso_week().week(), Weekday::Mon).unwrap()
 }
 
 #[inline]
 pub fn end_of_year(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_ymd(d.year(), 12, 31)
+    NaiveDate::from_ymd_opt(d.year(), 12, 31).unwrap()
 }
 
 #[inline]
 pub fn end_of_quarter(d: &NaiveDate) -> NaiveDate {
-    shift::shift_quarters(*d, 1).pred()
+    shift::shift_quarters(*d, 1).pred_opt().unwrap()
 }
 
 #[inline]
@@ -131,17 +138,19 @@ pub fn end_of_month(d: &NaiveDate) -> NaiveDate {
     let year = d.year();
     let days_in_month = days_in_month(year, month);
 
-    NaiveDate::from_ymd(year, month, days_in_month)
+    NaiveDate::from_ymd_opt(year, month, days_in_month).unwrap()
 }
 
 #[inline]
 pub fn end_of_biweek(d: &NaiveDate) -> NaiveDate {
-    shift::shift_weeks(beginning_of_biweek(d), 2).pred()
+    shift::shift_weeks(beginning_of_biweek(d), 2)
+        .pred_opt()
+        .unwrap()
 }
 
 #[inline]
 pub fn end_of_week(d: &NaiveDate) -> NaiveDate {
-    NaiveDate::from_isoywd(d.iso_week().year(), d.iso_week().week(), Weekday::Sun)
+    NaiveDate::from_isoywd_opt(d.iso_week().year(), d.iso_week().week(), Weekday::Sun).unwrap()
 }
 
 #[cfg(test)]
@@ -156,8 +165,8 @@ mod tests {
     #[test]
     fn test_beginning_of_biweek() {
         assert_eq!(
-            beginning_of_biweek(&NaiveDate::from_ymd(2022, 1, 1)),
-            NaiveDate::from_ymd(2021, 12, 20)
+            beginning_of_biweek(&NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()),
+            NaiveDate::from_ymd_opt(2021, 12, 20).unwrap()
         )
     }
 

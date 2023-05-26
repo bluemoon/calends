@@ -94,12 +94,12 @@ impl Recurrence {
     /// use calends::{Recurrence, Rule};
     /// use chrono::NaiveDate;
     ///
-    /// let date = NaiveDate::from_ymd(2022, 1, 1);
-    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    /// let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+    /// let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
     ///
     /// let mut recur = Recurrence::with_start(Rule::monthly(), date);
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap()));
     /// ```
     pub fn with_start(rule: Rule, date: NaiveDate) -> Self {
         Self {
@@ -115,12 +115,12 @@ impl Recurrence {
     /// use calends::{Recurrence, Rule};
     /// use chrono::NaiveDate;
     ///
-    /// let date = NaiveDate::from_ymd(2022, 1, 1);
-    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    /// let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+    /// let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
     ///
     /// let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap()));
     /// assert_eq!(recur.next(), None);
     /// ```
     pub fn until(&self, date: NaiveDate) -> Until<Recurrence> {
@@ -133,12 +133,12 @@ impl Recurrence {
     /// use calends::{Recurrence, Rule};
     /// use chrono::NaiveDate;
     ///
-    /// let date = NaiveDate::from_ymd(2022, 1, 1);
-    /// let end = NaiveDate::from_ymd(2022, 3, 1);
+    /// let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+    /// let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
     ///
     /// let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()));
+    /// assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap()));
     /// assert_eq!(recur.next(), None);
     /// ```
     pub fn until_and_including(&self, date: NaiveDate) -> Until<Recurrence> {
@@ -175,42 +175,69 @@ mod tests {
 
     #[test]
     fn test_recur_monthly_until_inclusive() {
-        let date = NaiveDate::from_ymd(2022, 1, 1);
-        let end = NaiveDate::from_ymd(2022, 3, 1);
+        let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
 
         let mut recur = Recurrence::with_start(Rule::monthly(), date).until_and_including(end);
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 3, 1)));
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap())
+        );
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap())
+        );
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 3, 1).unwrap())
+        );
         assert_eq!(recur.next(), None);
     }
 
     #[test]
     fn test_recur_monthly_until_exclusive() {
-        let date = NaiveDate::from_ymd(2022, 1, 1);
-        let end = NaiveDate::from_ymd(2022, 3, 1);
+        let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
 
         let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap())
+        );
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap())
+        );
         assert_eq!(recur.next(), None);
     }
 
     #[test]
     fn test_recur_monthly() {
-        let date = NaiveDate::from_ymd(2022, 1, 1);
+        let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
 
         let mut recur = Recurrence::with_start(Rule::monthly(), date);
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap())
+        );
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 2, 1).unwrap())
+        );
     }
 
     #[test]
     fn test_recur_quarterly() {
-        let date = NaiveDate::from_ymd(2022, 1, 1);
+        let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
 
         let mut recur = Recurrence::with_start(Rule::quarterly(), date);
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-        assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 4, 1)));
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap())
+        );
+        assert_eq!(
+            recur.next(),
+            Some(NaiveDate::from_ymd_opt(2022, 4, 1).unwrap())
+        );
     }
 }

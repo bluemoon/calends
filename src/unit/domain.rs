@@ -32,26 +32,26 @@ impl CalendarUnit {
     pub fn into_interval(&self) -> Interval {
         let res = match self {
             CalendarUnit::Year(year) => ClosedInterval::from_start(
-                NaiveDate::from_yo(*year, 1),
+                NaiveDate::from_yo_opt(*year, 1).unwrap(),
                 RelativeDuration::months(12).with_days(-1),
             ),
             CalendarUnit::Quarter(year, quarter) => ClosedInterval::from_start(
-                NaiveDate::from_ymd(*year, (*quarter * 3 - 2).try_into().unwrap(), 1),
+                NaiveDate::from_ymd_opt(*year, (*quarter * 3 - 2).try_into().unwrap(), 1).unwrap(),
                 RelativeDuration::months(3).with_days(-1),
             ),
 
             CalendarUnit::Half(year, half) => ClosedInterval::from_start(
-                NaiveDate::from_ymd(*year, (*half * 6 - 5).try_into().unwrap(), 1),
+                NaiveDate::from_ymd_opt(*year, (*half * 6 - 5).try_into().unwrap(), 1).unwrap(),
                 RelativeDuration::months(6).with_days(-1),
             ),
 
             CalendarUnit::Month(year, month) => ClosedInterval::from_start(
-                NaiveDate::from_ymd(*year, (*month).try_into().unwrap(), 1),
+                NaiveDate::from_ymd_opt(*year, (*month).try_into().unwrap(), 1).unwrap(),
                 RelativeDuration::months(1).with_days(-1),
             ),
 
             CalendarUnit::Week(year, week) => ClosedInterval::from_start(
-                NaiveDate::from_isoywd(*year, (*week).into(), chrono::Weekday::Mon),
+                NaiveDate::from_isoywd_opt(*year, (*week).into(), chrono::Weekday::Mon).unwrap(),
                 RelativeDuration::days(7),
             ),
         };
@@ -161,21 +161,21 @@ mod tests {
         let interval = CalendarUnit::Quarter(2022, 1).into_interval();
         assert_eq!(
             interval.start_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 1, 1)
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
         );
         assert_eq!(
             interval.end_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 3, 31)
+            NaiveDate::from_ymd_opt(2022, 3, 31).unwrap()
         );
 
         let interval = CalendarUnit::Quarter(2022, 2).into_interval();
         assert_eq!(
             interval.start_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 4, 1)
+            NaiveDate::from_ymd_opt(2022, 4, 1).unwrap()
         );
         assert_eq!(
             interval.end_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 6, 30)
+            NaiveDate::from_ymd_opt(2022, 6, 30).unwrap()
         );
     }
 
@@ -184,11 +184,11 @@ mod tests {
         let interval = CalendarUnit::Half(2022, 2).into_interval();
         assert_eq!(
             interval.start_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 7, 1)
+            NaiveDate::from_ymd_opt(2022, 7, 1).unwrap()
         );
         assert_eq!(
             interval.end_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 12, 31)
+            NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()
         );
     }
 }

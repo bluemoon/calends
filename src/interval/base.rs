@@ -67,13 +67,13 @@ impl Interval {
     /// use calends::{Interval, IntervalLike, RelativeDuration};
     /// use calends::interval::marker::{End, Start};
     ///
-    /// let start = NaiveDate::from_ymd(2022, 1, 1);
+    /// let start = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
     /// let duration = RelativeDuration::months(1).with_days(-1);
     ///
     /// let mut interval = Interval::closed_from_start(start, duration);
     ///
     /// assert_eq!(interval.start_opt().unwrap(), start);
-    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 31));
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd_opt(2022, 1, 31).unwrap());
     /// ```
     pub fn closed_from_start(date: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(ClosedInterval::from_start(date, duration))
@@ -89,12 +89,12 @@ impl Interval {
     /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = Interval::closed_from_end(
-    ///     NaiveDate::from_ymd(2022, 1, 1),
+    ///     NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
     ///     RelativeDuration::months(1).with_weeks(-2).with_days(2),
     /// );
     ///
-    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2021, 12, 13));
-    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd_opt(2021, 12, 13).unwrap());
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd_opt(2022, 1, 1).unwrap());
     /// ```
     pub fn closed_from_end(end: NaiveDate, duration: RelativeDuration) -> Self {
         Interval::Closed(ClosedInterval::from_end(end, duration))
@@ -110,12 +110,12 @@ impl Interval {
     /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = Interval::closed_with_dates(
-    ///     NaiveDate::from_ymd(2022, 1, 1),
-    ///     NaiveDate::from_ymd(2023, 1, 1),
+    ///     NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
     /// );
     ///
-    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
-    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd_opt(2022, 1, 1).unwrap());
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd_opt(2023, 1, 1).unwrap());
     /// ```
     pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         Interval::Closed(ClosedInterval::with_dates(start, end))
@@ -204,12 +204,12 @@ impl IntervalWithStart {
     /// use calends::interval::marker::{End, Start};
     ///
     /// let interval = IntervalWithStart::closed_with_dates(
-    ///     NaiveDate::from_ymd(2022, 1, 1),
-    ///     NaiveDate::from_ymd(2023, 1, 1),
+    ///     NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
     /// );
     ///
-    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
-    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1));
+    /// assert_eq!(interval.start_opt().unwrap(), NaiveDate::from_ymd_opt(2022, 1, 1).unwrap());
+    /// assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd_opt(2023, 1, 1).unwrap());
     /// ```
     pub fn closed_with_dates(start: NaiveDate, end: NaiveDate) -> Self {
         IntervalWithStart::Closed(ClosedInterval::with_dates(start, end))
@@ -313,16 +313,17 @@ mod tests {
 
     #[test]
     fn test_reciprocity() {
-        let start = NaiveDate::from_ymd(2022, 1, 1);
-        let interval = Interval::closed_with_dates(start, NaiveDate::from_ymd(2022, 12, 31));
+        let start = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+        let interval =
+            Interval::closed_with_dates(start, NaiveDate::from_ymd_opt(2022, 12, 31).unwrap());
 
         assert_eq!(
             interval.start_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 1, 1)
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
         );
         assert_eq!(
             interval.end_opt().unwrap(),
-            NaiveDate::from_ymd(2022, 12, 31)
+            NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()
         );
 
         let duration = interval.duration().unwrap();
@@ -335,54 +336,72 @@ mod tests {
     #[test]
     fn test_interval_closed_from_start() {
         let mut iter = Interval::closed_from_start(
-            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
             RelativeDuration::months(1),
         )
-        .until_after(NaiveDate::from_ymd(2023, 1, 1))
+        .until_after(NaiveDate::from_ymd_opt(2023, 1, 1).unwrap())
         .unwrap();
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
-        assert_eq!(next.end_opt().unwrap(), NaiveDate::from_ymd(2022, 2, 1));
+        assert_eq!(
+            next.start_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
+        );
+        assert_eq!(
+            next.end_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 2, 1).unwrap()
+        );
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 2, 1));
-        assert_eq!(next.end_opt().unwrap(), NaiveDate::from_ymd(2022, 3, 1));
+        assert_eq!(
+            next.start_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 2, 1).unwrap()
+        );
+        assert_eq!(
+            next.end_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 3, 1).unwrap()
+        );
 
         let next = iter.next().unwrap();
-        assert_eq!(next.start_opt().unwrap(), NaiveDate::from_ymd(2022, 3, 1));
+        assert_eq!(
+            next.start_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 3, 1).unwrap()
+        );
     }
 
     #[test]
     fn test_interval_closed_from_end() {
         let interval = Interval::closed_from_end(
-            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
             RelativeDuration::months(1).with_weeks(-2).with_days(2),
         );
 
         assert_eq!(
             interval.start_opt().unwrap(),
-            NaiveDate::from_ymd(2021, 12, 13)
+            NaiveDate::from_ymd_opt(2021, 12, 13).unwrap()
         );
-        assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2022, 1, 1));
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap()
+        );
     }
 
     #[test]
     fn test_interval_closed_with_dates() {
         let mut iter = Interval::closed_with_dates(
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2023, 1, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
         )
-        .until_after(NaiveDate::from_ymd(2025, 1, 1))
+        .until_after(NaiveDate::from_ymd_opt(2025, 1, 1).unwrap())
         .unwrap();
 
         assert_eq!(
             iter.next().unwrap().start_opt(),
-            Some(NaiveDate::from_ymd(2022, 1, 1))
+            Some(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap())
         );
         assert_eq!(
             iter.next().unwrap().start_opt(),
-            Some(NaiveDate::from_ymd(2023, 1, 1))
+            Some(NaiveDate::from_ymd_opt(2023, 1, 1).unwrap())
         );
     }
 }
