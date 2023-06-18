@@ -59,13 +59,13 @@ impl RelativeDuration {
     /// # use chrono::NaiveDate;
     ///
     /// let duration = RelativeDuration::from_duration_between(
-    ///     NaiveDate::from_ymd(2022, 1, 1),
-    ///     NaiveDate::from_ymd(2023, 1, 1),
+    ///     NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+    ///     NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
     ///  );
     ///
     /// assert_eq!(
-    ///     NaiveDate::from_ymd(2022, 1, 1) + duration,
-    ///     NaiveDate::from_ymd(2023, 1, 1)
+    ///     NaiveDate::from_ymd_opt(2022, 1, 1).unwrap() + duration,
+    ///     NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
     /// );
     /// ```
     pub fn from_duration_between(start: NaiveDate, end: NaiveDate) -> RelativeDuration {
@@ -325,47 +325,47 @@ mod tests {
     #[test]
     fn test_from_duration_transits_year() {
         let duration = RelativeDuration::from_duration_between(
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2023, 1, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
         );
 
         assert_eq!(
-            NaiveDate::from_ymd(2022, 1, 1) + duration,
-            NaiveDate::from_ymd(2023, 1, 1)
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap() + duration,
+            NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
         );
     }
 
     #[test]
     fn test_from_duration_transits_month() {
         let duration = RelativeDuration::from_duration_between(
-            NaiveDate::from_ymd(2023, 3, 1),
-            NaiveDate::from_ymd(2023, 3, 31),
+            NaiveDate::from_ymd_opt(2023, 3, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2023, 3, 31).unwrap(),
         );
 
         assert_eq!(
-            NaiveDate::from_ymd(2023, 3, 1) + duration,
-            NaiveDate::from_ymd(2023, 3, 31)
+            NaiveDate::from_ymd_opt(2023, 3, 1).unwrap() + duration,
+            NaiveDate::from_ymd_opt(2023, 3, 31).unwrap()
         );
     }
 
     #[test]
     fn test_from_duration_transits_months_and_days() {
         let duration = RelativeDuration::from_duration_between(
-            NaiveDate::from_ymd(2023, 3, 1),
-            NaiveDate::from_ymd(2023, 4, 20),
+            NaiveDate::from_ymd_opt(2023, 3, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2023, 4, 20).unwrap(),
         );
 
         assert_eq!(
-            NaiveDate::from_ymd(2023, 3, 1) + duration,
-            NaiveDate::from_ymd(2023, 4, 20)
+            NaiveDate::from_ymd_opt(2023, 3, 1).unwrap() + duration,
+            NaiveDate::from_ymd_opt(2023, 4, 20).unwrap()
         );
     }
 
     #[test]
     fn test_from_duration_between_year() {
         let duration = RelativeDuration::from_duration_between(
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2023, 1, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
         );
 
         assert_eq!(duration.num_months(), 12);
@@ -376,8 +376,8 @@ mod tests {
     #[test]
     fn test_from_duration_between_month() {
         let duration = RelativeDuration::from_duration_between(
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2022, 2, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2022, 2, 1).unwrap(),
         );
 
         assert_eq!(duration.num_months(), 1);
@@ -487,7 +487,7 @@ mod tests {
     #[test]
     fn test_add_year() {
         let rd = RelativeDuration::months(12);
-        let next = NaiveDate::from_ymd(2022, 1, 1) + rd;
-        assert_eq!(next, NaiveDate::from_ymd(2023, 1, 1));
+        let next = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap() + rd;
+        assert_eq!(next, NaiveDate::from_ymd_opt(2023, 1, 1).unwrap());
     }
 }

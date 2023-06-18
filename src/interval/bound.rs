@@ -23,7 +23,7 @@ where
         (None, None) => Ordering::Equal,
         (None, Some(_)) => Ordering::Greater,
         (Some(_), None) => Ordering::Less,
-        (Some(r1), Some(ref r2)) => r1.cmp(r2),
+        (Some(r1), Some(r2)) => r1.cmp(r2),
     }
 }
 

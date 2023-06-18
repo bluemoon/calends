@@ -40,12 +40,12 @@ mod tests {
     #[test]
     fn test_convert_week() {
         assert_eq!(
-            convert_to_iso_week(NaiveDate::from_ymd(2020, 2, 29)),
+            convert_to_iso_week(NaiveDate::from_ymd_opt(2020, 2, 29).unwrap()),
             CalendarUnit::Week(2020, 9)
         );
 
         assert_eq!(
-            convert_to_iso_week(NaiveDate::from_ymd(2022, 12, 31)),
+            convert_to_iso_week(NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()),
             CalendarUnit::Week(2022, 52)
         )
     }
@@ -53,12 +53,12 @@ mod tests {
     #[test]
     fn test_convert_month() {
         assert_eq!(
-            convert_to_month(NaiveDate::from_ymd(2020, 2, 29)),
+            convert_to_month(NaiveDate::from_ymd_opt(2020, 2, 29).unwrap()),
             CalendarUnit::Month(2020, 2)
         );
 
         assert_eq!(
-            convert_to_month(NaiveDate::from_ymd(2022, 12, 31)),
+            convert_to_month(NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()),
             CalendarUnit::Month(2022, 12)
         )
     }
@@ -66,12 +66,12 @@ mod tests {
     #[test]
     fn test_convert_quarter() {
         assert_eq!(
-            convert_to_quarter(NaiveDate::from_ymd(2020, 2, 29)),
+            convert_to_quarter(NaiveDate::from_ymd_opt(2020, 2, 29).unwrap()),
             CalendarUnit::Quarter(2020, 1)
         );
 
         assert_eq!(
-            convert_to_quarter(NaiveDate::from_ymd(2022, 12, 31)),
+            convert_to_quarter(NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()),
             CalendarUnit::Quarter(2022, 4)
         )
     }
@@ -79,12 +79,12 @@ mod tests {
     #[test]
     fn test_convert_half() {
         assert_eq!(
-            convert_to_half(NaiveDate::from_ymd(2020, 2, 29)),
+            convert_to_half(NaiveDate::from_ymd_opt(2020, 2, 29).unwrap()),
             CalendarUnit::Half(2020, 1)
         );
 
         assert_eq!(
-            convert_to_half(NaiveDate::from_ymd(2022, 12, 31)),
+            convert_to_half(NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()),
             CalendarUnit::Half(2022, 2)
         )
     }
@@ -92,12 +92,12 @@ mod tests {
     #[test]
     fn test_convert_year() {
         assert_eq!(
-            convert_to_year(NaiveDate::from_ymd(2020, 2, 29)),
+            convert_to_year(NaiveDate::from_ymd_opt(2020, 2, 29).unwrap()),
             CalendarUnit::Year(2020)
         );
 
         assert_eq!(
-            convert_to_year(NaiveDate::from_ymd(2022, 12, 31)),
+            convert_to_year(NaiveDate::from_ymd_opt(2022, 12, 31).unwrap()),
             CalendarUnit::Year(2022)
         )
     }

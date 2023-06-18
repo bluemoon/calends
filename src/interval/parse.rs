@@ -17,7 +17,10 @@ pub fn parse_date(i: &[u8]) -> IResult<&[u8], NaiveDate> {
     let (i, _) = tag(b"-")(i)?;
     let (i, day) = take_n_digits(i, 2)?;
 
-    Ok((i, NaiveDate::from_ymd(year.try_into().unwrap(), month, day)))
+    Ok((
+        i,
+        NaiveDate::from_ymd_opt(year.try_into().unwrap(), month, day).unwrap(),
+    ))
 }
 
 fn parse_start_and_duration(i: &[u8]) -> IResult<&[u8], ClosedInterval> {
@@ -59,6 +62,9 @@ mod tests {
     #[test]
     fn test_parse_interval() {
         let (_i, interval) = parse_interval("2022-01-01/2023-01-01".as_bytes()).unwrap();
-        assert_eq!(interval.end_opt().unwrap(), NaiveDate::from_ymd(2023, 1, 1))
+        assert_eq!(
+            interval.end_opt().unwrap(),
+            NaiveDate::from_ymd_opt(2023, 1, 1).unwrap()
+        )
     }
 }

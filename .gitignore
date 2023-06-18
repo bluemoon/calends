@@ -11,3 +11,6 @@ Cargo.lock
 
 # macOS junk
 .DS_Store
+
+# vsCode
+/.vscode/

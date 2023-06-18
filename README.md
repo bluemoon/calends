@@ -32,8 +32,8 @@ let rd = RelativeDuration::months(1).with_days(-2);
 
 // It also compatible with NaiveDate
 assert_eq!(
-    NaiveDate::from_ymd(2022, 1, 1) + rd,
-    NaiveDate::from_ymd(2022, 1, 30)
+    NaiveDate::from_ymd_opt(2022, 1, 1).unwrap() + rd,
+    NaiveDate::from_ymd_opt(2022, 1, 30).unwrap()
 );
 ```
 
@@ -79,12 +79,12 @@ assert_eq!(rd, parsed.rd)
 use calends::{Recurrence, Rule};
 use chrono::NaiveDate;
 
-let date = NaiveDate::from_ymd(2022, 1, 1);
-let end = NaiveDate::from_ymd(2022, 3, 1);
+let date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+let end = NaiveDate::from_ymd_opt(2022, 3, 1).unwrap();
 
 let mut recur = Recurrence::with_start(Rule::monthly(), date).until(end);
-assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 1, 1)));
-assert_eq!(recur.next(), Some(NaiveDate::from_ymd(2022, 2, 1)));
+assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 1, 1)));
+assert_eq!(recur.next(), Some(NaiveDate::from_ymd_opt(2022, 2, 1)));
 assert_eq!(recur.next(), None);
 ```
 
@@ -107,7 +107,7 @@ use calends::{Interval, RelativeDuration};
 use chrono::NaiveDate;
 
 let duration = RelativeDuration::months(1).with_days(-2);
-let start = NaiveDate::from_ymd(2022, 1, 1);
+let start = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
 
 let mut interval = Interval::closed_from_start(start, duration);
 ```
@@ -130,7 +130,7 @@ struct S {
 }
 
 let rd = RelativeDuration::default().with_days(1).with_months(23).with_weeks(-1);
-let int = Interval::closed_from_start(NaiveDate::from_ymd(2022, 1, 1), rd);
+let int = Interval::closed_from_start(NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(), rd);
 let s = S { i: int.clone() };
 
 let int_string = serde_json::to_string(&s).unwrap();
